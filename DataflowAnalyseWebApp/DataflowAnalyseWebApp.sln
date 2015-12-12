@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataflowAnalyseWebApp", "DataflowAnalyseWebApp\DataflowAnalyseWebApp.csproj", "{2B1675A1-68E7-4680-853D-699446A4B669}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitInformationTest", "UnitInformationTest\UnitInformationTest.csproj", "{D29601F2-7744-415C-B502-EEF20CC8505D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2B1675A1-68E7-4680-853D-699446A4B669}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B1675A1-68E7-4680-853D-699446A4B669}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B1675A1-68E7-4680-853D-699446A4B669}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D29601F2-7744-415C-B502-EEF20CC8505D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D29601F2-7744-415C-B502-EEF20CC8505D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D29601F2-7744-415C-B502-EEF20CC8505D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D29601F2-7744-415C-B502-EEF20CC8505D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
