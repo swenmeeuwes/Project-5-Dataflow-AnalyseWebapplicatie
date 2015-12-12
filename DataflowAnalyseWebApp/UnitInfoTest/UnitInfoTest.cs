@@ -1,46 +1,46 @@
 ﻿using System;
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DataflowAnalyseWebApp;
 using System.Collections.Generic;
 using DataflowAnalyseWebApp.Models;
 
 namespace UnitInformationTest {
-    [TestFixture]
+    [TestClass]
     public class UnitInformationTest {
 
         private UnitInformation unit;
         private List<Position> allData;
         private List<Position> filteredData;
 
-        [SetUp]
+        [TestInitialize]
         public void SetUp() {
             unit = new UnitInformation();
             allData = unit.GetData();
             filteredData = unit.GetBadConnections();
         }
 
-        [Test]
+        [TestMethod]
         public void TestGetData() {
             Assert.IsFalse(allData.Count == 0);
         }
 
-        [Test]
+        [TestMethod]
         public void TestGetBadConnections() {
             Assert.IsTrue(allData.Count > filteredData.Count);
         }
 
-        [Test]
+        [TestMethod]
         public void TestCheckOccurance() {
             Dictionary<long, int> occurences = unit.CheckOccurence();
             Assert.IsFalse(occurences.Count == 0);
         }
 
-        [Test]
-        public void testFrequenceBadConnections() {
+        [TestMethod]
+        public void TestFrequenceBadConnections() {
             Dictionary<long, int> occurences = unit.CheckOccurence();
             List<long> frequentBadConnections = unit.GetFrequenceBadConnections();
             bool hundredOrMore = true;
-            foreach(long unit in frequentBadConnections) {
+            foreach (long unit in frequentBadConnections) {
                 if (!occurences.ContainsKey(unit)) {
                     hundredOrMore = false;
                 }
@@ -48,7 +48,7 @@ namespace UnitInformationTest {
             Assert.IsTrue(hundredOrMore);
         }
 
-        [TearDown]
+        [TestCleanup]
         public void TearDown() {
             unit = null;
             allData = null;
