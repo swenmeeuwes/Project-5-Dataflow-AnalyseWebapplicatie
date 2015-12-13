@@ -4,6 +4,11 @@ using DataflowAnalyseWebApp;
 using System.Collections.Generic;
 using DataflowAnalyseWebApp.Models;
 
+
+/// <summary>
+/// Unit test class for the analysis class UnitInformation.cs
+/// 
+/// </summary>
 namespace UnitInformationTest {
     [TestClass]
     public class UnitInformationTest {
