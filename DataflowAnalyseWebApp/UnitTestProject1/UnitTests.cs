@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace DataflowAnalyseWebAppTest
 {
-    [TestFixture]
+    [TestFixture] 
     public class UnitInformationTest
     {
         private List<Position> data;
