@@ -11,7 +11,7 @@ namespace DataflowAnalyseWebApp.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string _id;
+        public string _id; 
         public long unitId { get; set; }
         public DateTime dateTime { get; set; }
         public float rdX { get; set; }
