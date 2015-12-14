@@ -49,6 +49,7 @@ namespace DataflowAnalyseWebApp {
                     result.Add(unit.unitId, 1);
                 }
             }
+            Console.WriteLine("test1");
             return result;
         }
 
