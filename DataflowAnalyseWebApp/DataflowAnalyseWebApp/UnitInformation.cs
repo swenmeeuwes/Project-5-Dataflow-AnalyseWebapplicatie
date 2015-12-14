@@ -49,7 +49,6 @@ namespace DataflowAnalyseWebApp {
                     result.Add(unit.unitId, 1);
                 }
             }
-            Console.WriteLine("test1");
             return result;
         }
 
@@ -59,7 +58,7 @@ namespace DataflowAnalyseWebApp {
         /// <returns>List containing only bad connections</returns>
         public List<Position> GetBadConnections() {
             foreach (Position unit in allData) {
-                if (unit.numSatellite > 3 && unit.hdop < 5) {
+                if (unit.numSatellite < 3 && unit.hdop > 5) {
                     filteredData.Add(unit);
                 }
             }
