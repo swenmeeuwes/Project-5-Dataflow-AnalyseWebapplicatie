@@ -49,6 +49,7 @@ namespace DataflowAnalyseWebApp.Controllers
             double dist = Math.Sin(DegToRad(lat1)) * Math.Sin(DegToRad(lat2)) + Math.Cos(DegToRad(lat1)) * Math.Cos(DegToRad(lat2)) * Math.Cos(DegToRad(theta));
             dist = Math.Acos(dist);
             dist = RadToDeg(dist);
+            dist = dist * 60 * 1.1515;
             dist = dist * 1.609344;
             return (dist);
         }
