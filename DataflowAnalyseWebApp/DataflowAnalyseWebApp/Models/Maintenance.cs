@@ -8,6 +8,6 @@ namespace DataflowAnalyseWebApp.Models
     public class Maintenance
     {
         public long unitId { get; set; }
-        public int kilometers { get; set; }
+        public double kilometersTravelled { get; set; }
     }
 }

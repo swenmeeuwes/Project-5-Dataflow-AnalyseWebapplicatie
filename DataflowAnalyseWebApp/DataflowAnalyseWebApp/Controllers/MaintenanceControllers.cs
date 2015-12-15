@@ -21,7 +21,7 @@ namespace DataflowAnalyseWebApp.Controllers
         }
 
         // GET api/maintenance/5
-        public Maintenance Get(int unitId)
+        public Maintenance Get(long unitId)
         {
             string webserviceUrl = WebConfigurationManager.AppSettings["WebserviceUrl"];
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webserviceUrl + "/positions/" + unitId.ToString());
@@ -39,7 +39,7 @@ namespace DataflowAnalyseWebApp.Controllers
             {
                 travelled += CalcDistance(positionResponse.result[i].latitudeGps, positionResponse.result[i].longitudeGps, positionResponse.result[i+1].latitudeGps, positionResponse.result[i+1].longitudeGps);
             }
-
+            maintenance.kilometersTravelled = travelled;
             return maintenance;
         }
 
