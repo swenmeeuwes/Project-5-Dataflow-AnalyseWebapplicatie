@@ -8,7 +8,6 @@ namespace DataflowAnalyseWebApp.Models
 {
     public class Monitoring
     {
-        public ObjectId _id { get; set; }
         public long unitId { get; set; }
         public DateTime beginTime { get; set; }
         public DateTime endTime { get; set; }

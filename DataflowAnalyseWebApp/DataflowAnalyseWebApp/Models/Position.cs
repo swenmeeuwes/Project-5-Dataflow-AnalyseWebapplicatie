@@ -8,7 +8,6 @@ namespace DataflowAnalyseWebApp.Models
 {
     public class Position
     {
-        public ObjectId _id { get; set; }
         public long unitId { get; set; }
         public DateTime dateTime { get; set; }
         public float rdX { get; set; }
