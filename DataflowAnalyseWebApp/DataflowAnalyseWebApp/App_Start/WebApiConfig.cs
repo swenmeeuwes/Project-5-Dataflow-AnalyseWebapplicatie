@@ -19,6 +19,12 @@ namespace DataflowAnalyseWebApp
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
+                name: "UnitId",
+                routeTemplate: "api/{controller}/{unitId}",
+                defaults: new { unitId = RouteParameter.Optional }
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
