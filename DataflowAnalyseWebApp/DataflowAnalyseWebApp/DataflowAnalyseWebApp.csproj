@@ -141,9 +141,11 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MaintenanceControllers.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Controllers\WrappingHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ApiResponse.cs" />
     <Compile Include="Models\Event.cs" />
     <Compile Include="Models\Monitoring.cs" />
     <Compile Include="Models\Position.cs" />
