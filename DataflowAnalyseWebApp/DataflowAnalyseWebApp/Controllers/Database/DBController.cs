@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using MongoDB.Driver;
+using System.Web.Configuration;
 
 namespace DataflowAnalyseWebApp.Controllers.Database
 {
@@ -13,7 +14,7 @@ namespace DataflowAnalyseWebApp.Controllers.Database
         public DBController()
         {
             MongoServerSettings settings = new MongoServerSettings();
-            settings.Server = new MongoServerAddress("145.24.222.160", 8010);
+            settings.Server = new MongoServerAddress(WebConfigurationManager.AppSettings["DataBaseURL"]);
 
             MongoServer server = new MongoServer(settings);
 
