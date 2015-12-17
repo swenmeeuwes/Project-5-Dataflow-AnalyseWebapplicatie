@@ -8,9 +8,10 @@ namespace DataflowAnalyseWebApp.Models
 {
     public class Monitoring
     {
+        public ObjectId _id { get; set; }
         public long unitId { get; set; }
-        public string beginTime { get; set; }
-        public string endTime { get; set; }
+        public DateTime beginTime { get; set; }
+        public DateTime endTime { get; set; }
         public string sensorType { get; set; }
         public double minValue { get; set; }
         public double maxValue { get; set; }
