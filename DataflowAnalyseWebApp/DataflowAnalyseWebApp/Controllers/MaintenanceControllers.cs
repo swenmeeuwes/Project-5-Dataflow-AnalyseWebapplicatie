@@ -20,7 +20,15 @@ namespace DataflowAnalyseWebApp.Controllers
         // GET api/values
         public IEnumerable<Maintenance> Get()
         {
-            return new List<Maintenance>();
+            MongoDatabase database = new DBController().database;
+            List<long> uniqueUnitIds = database.GetCollection<Position>("positions").FindAll().Select(p => p.unitId).Distinct().ToList();
+            List<Maintenance> maintenanceList = new List<Maintenance>();
+            foreach (var unitId in uniqueUnitIds)
+            {
+                maintenanceList.Add(Get(unitId));
+            }
+
+            return maintenanceList;
         }
 
         // GET api/maintenance/5
