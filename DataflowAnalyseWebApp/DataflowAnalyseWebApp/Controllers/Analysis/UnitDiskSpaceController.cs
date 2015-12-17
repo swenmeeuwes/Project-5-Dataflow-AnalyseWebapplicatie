@@ -17,6 +17,8 @@ namespace DataflowAnalyseWebApp.Controllers
         public UnitDiskSpaceController()
         {
             monitoringItems = new List<Monitoring>();
+            GetDiskSpaceData();//error
+            IterateDiskSpaceObjects();
         }
 
         // GET api/values
@@ -27,8 +29,31 @@ namespace DataflowAnalyseWebApp.Controllers
         private void GetDiskSpaceData()
         {
             DBController database = new DBController();
-            IMongoQuery query = Query<Monitoring>.EQ(m => m.sensorType, "SystemInfo/AvailableDiskSpace");
-            monitoringItems = database.database.GetCollection<Monitoring>("monitorings").Find(query).ToList();
+            var collection = database.database.GetCollection<Monitoring>("monitorings");
+            var query = from c in collection.AsQueryable<Monitoring>()
+                        where c.sensorType == "SystemInfo/AvailableDiskSpace"
+                        select c;
+
+            //var query = Builders<Monitoring>.Filter.Eq(m => m.sensorType, "SystemInfo/AvailableDiskSpace");
+            //
+            //
+            //var result = await query.ToListAsync();
+            //var myResult = database.database.GetCollection<Monitoring>("monitorings").Find(m => m.sensorType == "SystemInfo / AvailableDiskSpace");
+            foreach (var item in query)
+            {
+                Console.WriteLine(item.unitId + " " + item.sensorType);
+            }
+            Console.Read();
+            Console.WriteLine("check");
+           
+        }
+        public void IterateDiskSpaceObjects()
+        {
+            foreach (var diskSpaceItem in monitoringItems)
+            {
+                Console.WriteLine(diskSpaceItem.unitId + " " +diskSpaceItem.sensorType);
+            }
+            Console.Read();
         }
 
     }

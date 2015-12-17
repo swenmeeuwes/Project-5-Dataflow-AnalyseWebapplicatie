@@ -134,7 +134,6 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Analysis\UnitDiskSpace.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
@@ -142,7 +141,7 @@
     <Compile Include="Controllers\Database\DBController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MaintenanceControllers.cs" />
-    <Compile Include="Controllers\UnitDiskSpaceController.cs" />
+    <Compile Include="Controllers\Analysis\UnitDiskSpaceController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Controllers\WrappingHandler.cs" />
     <Compile Include="Global.asax.cs">
