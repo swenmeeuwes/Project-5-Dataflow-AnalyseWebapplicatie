@@ -35,12 +35,10 @@ namespace DataflowAnalyseWebApp.Controllers
                         where c.sensorType == "SystemInfo/AvailableDiskSpace"
                         select c;
 
-                foreach (var item in query)
+                foreach (var diskSpaceItem in query)
                 {
-                    System.Diagnostics.Debug.WriteLine(item.unitId + " " + item.sensorType + " " + item.beginTime + " " + item.endTime);
-                }
-
-           
+                    System.Diagnostics.Debug.WriteLine(diskSpaceItem.unitId + " " + diskSpaceItem.sensorType + " " + diskSpaceItem.sumValue + " " + diskSpaceItem.beginTime + " " + diskSpaceItem.endTime);
+                }           
         }
         public void IterateDiskSpaceObjects()
         {

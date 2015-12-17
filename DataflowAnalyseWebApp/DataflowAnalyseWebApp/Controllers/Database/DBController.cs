@@ -19,25 +19,6 @@ namespace DataflowAnalyseWebApp.Controllers.Database
             string simpleConnectionString = "mongodb://145.24.222.160:8010";
             var client = new MongoClient(simpleConnectionString);
             database = client.GetDatabase("Dataflow");
-
-
-            var state = client.Cluster.Description.State;
-            Console.WriteLine(state);
-            
-
-
-
-
-            /* THIS IS THE OLD WAY TO CONNECT TO MONGODB.. DIDn't WORK ON THIS WEB API.. IT WORKED ON OTHER WEB API 
-
-         MongoServerSettings settings = new MongoServerSettings();
-             settings.Server = new MongoServerAddress(
-                 WebConfigurationManager.AppSettings["DataBaseURL"],
-                 Convert.ToInt32(WebConfigurationManager.AppSettings["DataBasePort"]));
-
-             MongoServer server = new MongoServer(settings);
-
-             database = server.GetDatabase("Dataflow");   */
         }
     }
 }
