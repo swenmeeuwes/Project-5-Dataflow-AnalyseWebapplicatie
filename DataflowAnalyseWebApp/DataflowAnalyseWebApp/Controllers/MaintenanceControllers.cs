@@ -1,4 +1,7 @@
-﻿using DataflowAnalyseWebApp.Models;
+﻿using DataflowAnalyseWebApp.Controllers.Database;
+using DataflowAnalyseWebApp.Models;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -28,21 +31,18 @@ namespace DataflowAnalyseWebApp.Controllers
 
         private Maintenance GetMaintenanceFromUnitId(long unitId)
         {
-            string webserviceUrl = WebConfigurationManager.AppSettings["WebserviceUrl"];
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webserviceUrl + "/positions/" + unitId.ToString());
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream receiveStream = response.GetResponseStream();
-            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            string responseString = readStream.ReadToEnd();
-            PositionResponse positionResponse = JsonConvert.DeserializeObject<PositionResponse>(responseString);
+            MongoDatabase database = new DBController().database;
+            IMongoQuery query = Query<Position>.EQ(p => p.unitId, unitId);
+            List<Position> positions = database.GetCollection<Position>("positions").Find(query).ToList();
+
 
             Maintenance maintenance = new Maintenance();
             maintenance.unitId = unitId;
 
             double travelled = 0;
-            for (int i = 0; i < positionResponse.result.Length - 1; i++)
+            for (int i = 0; i < positions.Count - 1; i++)
             {
-                travelled += CalcDistance(positionResponse.result[i].latitudeGps, positionResponse.result[i].longitudeGps, positionResponse.result[i + 1].latitudeGps, positionResponse.result[i + 1].longitudeGps);
+                travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
             }
             maintenance.kilometersTravelled = travelled;
             return maintenance;
