@@ -13,41 +13,79 @@ namespace DataflowAnalyseWebApp.Controllers
 {
     public class UnitDiskSpaceController : ApiController
     {
-        List<Monitoring> monitoringItems;
+        //TODO add query by id, string status and percentage used
+        private IMongoCollection<Monitoring> monitoringsCollection;
+        private readonly string sensorType = "SystemInfo/AvailableDiskSpace";
+
         public UnitDiskSpaceController()
         {
+            DBController database = new DBController();
+            monitoringsCollection = database.database.GetCollection<Monitoring>("monitorings");
             monitoringItems = new List<Monitoring>();
-            GetDiskSpaceData();
-            IterateDiskSpaceObjects();
         }
 
-        // GET api/values
-        public IEnumerable<string> Get()
+        List<Monitoring> monitoringItems;
+        // GET api/UnitDiskSpace
+        public IEnumerable<Monitoring> Get()
         {
-            return new string[] { "value1", "value2" };
+            GetDiskSpaceData();
+            return monitoringItems;
         }
+        // GET api/UnitDiskSpace/5
+        public IEnumerable<Monitoring> Get(long id)
+        {
+            GetDiskSpaceById(id);
+            return monitoringItems;
+        }
+
         private void GetDiskSpaceData()
         {
-            
-            DBController database = new DBController();
-            var collection = database.database.GetCollection<Monitoring>("monitorings");
-            var query = from c in collection.AsQueryable<Monitoring>()
-                        where c.sensorType == "SystemInfo/AvailableDiskSpace"
-                        select c;
+            var query = from monitoring in monitoringsCollection.AsQueryable()
+                        where monitoring.sensorType == sensorType
+                        select monitoring;
 
-                foreach (var diskSpaceItem in query)
-                {
-                    System.Diagnostics.Debug.WriteLine(diskSpaceItem.unitId + " " + diskSpaceItem.sensorType + " " + diskSpaceItem.sumValue + " " + diskSpaceItem.beginTime + " " + diskSpaceItem.endTime);
-                }           
-        }
-        public void IterateDiskSpaceObjects()
-        {
-            foreach (var diskSpaceItem in monitoringItems)
+            monitoringItems.Clear();
+            foreach (var diskSpaceItem in query)
             {
-                Console.WriteLine(diskSpaceItem.unitId + " " +diskSpaceItem.sensorType);
+                monitoringItems.Add(diskSpaceItem);
             }
-            Console.Read();
         }
+
+        // GET api/UnitDiskSpace/GetFewDiskSpace
+        public IEnumerable<Monitoring> GetFewDiskSpace()
+        {
+            GetFewDiskSpaceData();
+            return monitoringItems;
+        }
+
+
+        private void GetFewDiskSpaceData()
+        {
+            var query = from monitoring in monitoringsCollection.AsQueryable()
+                        where monitoring.sensorType == sensorType && (monitoring.maxValue * 0.75) >= monitoring.sumValue
+                        select monitoring;
+
+            monitoringItems.Clear();
+            foreach (var diskSpaceItem in query)
+            {
+                monitoringItems.Add(diskSpaceItem);
+            }
+        }
+        private void GetDiskSpaceById(long id)
+        {
+            var query = from monitoring in monitoringsCollection.AsQueryable()
+                        where monitoring.sensorType == sensorType && monitoring.unitId == id
+                        select monitoring;
+        }
+
+        private void GetSmallDiskSpace()
+        {
+            var query = from monitoring in monitoringsCollection.AsQueryable()
+                        where monitoring.sensorType == sensorType && (monitoring.maxValue * 0.25) <= monitoring.sumValue
+                        select monitoring;
+        }
+
+        
 
     }
 }

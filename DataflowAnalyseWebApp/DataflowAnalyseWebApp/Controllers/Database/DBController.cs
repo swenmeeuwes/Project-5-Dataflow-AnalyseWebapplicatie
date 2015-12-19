@@ -15,9 +15,8 @@ namespace DataflowAnalyseWebApp.Controllers.Database
 
         public DBController()
         {
-            string connectionString = WebConfigurationManager.AppSettings["DataBaseURL"] + ":" + WebConfigurationManager.AppSettings["DataBasePort"];
-            string simpleConnectionString = "mongodb://145.24.222.160:8010";
-            var client = new MongoClient(simpleConnectionString);
+            string connectionString = WebConfigurationManager.AppSettings["DataBaseURL"];
+            var client = new MongoClient(connectionString);
             database = client.GetDatabase("Dataflow");
         }
     }

@@ -16,5 +16,10 @@ namespace DataflowAnalyseWebApp.Models
         public double minValue { get; set; }
         public double maxValue { get; set; }
         public double sumValue { get; set; }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1} {2} {3} {4} {5} {6} ", unitId, beginTime, endTime, sensorType, minValue, maxValue, sumValue);
+        }
     }
 }
