@@ -7,6 +7,8 @@ namespace DataflowAnalyseWebApp.Models.Monitoring
 {
     public class MonitoringDiskSpace
     {
+        public long unitId { get; set; }
+        public DateTime endTime { get; set; }
         public double percentUsed { get; set; }
         public string diskSpaceStatus { get; set; }
     }

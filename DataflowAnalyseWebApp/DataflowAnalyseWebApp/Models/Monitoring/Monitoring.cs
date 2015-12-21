@@ -19,9 +19,9 @@ namespace DataflowAnalyseWebApp.Models.Monitoring
         public double maxValue { get; set; }
         public double sumValue { get; set; }
 
-        //added for analysis
-        public double percentUsed { get; set; }
-        public string diskSpaceStatus { get; set; }
+        ////added for analysis
+        //public double percentUsed { get; set; }
+        //public string diskSpaceStatus { get; set; }
 
         public override string ToString()
         {

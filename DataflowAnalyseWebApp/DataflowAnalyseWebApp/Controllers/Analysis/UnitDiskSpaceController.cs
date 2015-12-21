@@ -12,27 +12,27 @@ using DataflowAnalyseWebApp.Models.Monitoring;
 namespace DataflowAnalyseWebApp.Controllers
 {
     public class UnitDiskSpaceController : ApiController
-    {
-        //TODO output must be small dataset. input = monitoring model.. output = monitoringDiskSpace
+    {     
         private IMongoCollection<Monitoring> monitoringsCollection;
-        private readonly string sensorType = "SystemInfo/AvailableDiskSpace";
+        private const string sensorType = "SystemInfo/AvailableDiskSpace";
+        private const int diskSpaceCapacity = 2000000;
+        List<MonitoringDiskSpace> monitoringItems;
 
         public UnitDiskSpaceController()
         {
             DBController database = new DBController();
             monitoringsCollection = database.database.GetCollection<Monitoring>("monitorings");
-            monitoringItems = new List<Monitoring>();
+            monitoringItems = new List<MonitoringDiskSpace>();
         }
-
-        List<Monitoring> monitoringItems;
+       
         // GET api/UnitDiskSpace
-        public IEnumerable<Monitoring> Get()
+        public IEnumerable<MonitoringDiskSpace> Get()
         {
             GetDiskSpaceData();
             return monitoringItems;
         }
         // GET api/UnitDiskSpace/5
-        public IEnumerable<Monitoring> Get(long unitId)
+        public IEnumerable<MonitoringDiskSpace> Get(long unitId)
         {
             GetDiskSpaceById(unitId);
             return monitoringItems;
@@ -59,25 +59,28 @@ namespace DataflowAnalyseWebApp.Controllers
             monitoringItems.Clear();
             foreach (var diskSpaceItem in query)
             {
-                diskSpaceItem.percentUsed = Math.Round((diskSpaceItem.maxValue / diskSpaceItem.sumValue) * 100, 2);
+                MonitoringDiskSpace diskSpaceOutput = new MonitoringDiskSpace();
+                diskSpaceOutput.unitId = diskSpaceItem.unitId;
+                diskSpaceOutput.endTime = diskSpaceItem.endTime;
+                diskSpaceOutput.percentUsed = Math.Round((diskSpaceItem.maxValue / diskSpaceCapacity) * 100, 2);
 
-                if (diskSpaceItem.percentUsed <= 25)
+                if (diskSpaceOutput.percentUsed <= 25)
                 {
-                    diskSpaceItem.diskSpaceStatus = "Empty";
+                    diskSpaceOutput.diskSpaceStatus = "Empty";
                 }
-                else if (diskSpaceItem.percentUsed > 25 && diskSpaceItem.percentUsed < 75)
+                else if (diskSpaceOutput.percentUsed > 25 && diskSpaceOutput.percentUsed < 75)
                 {
-                    diskSpaceItem.diskSpaceStatus = "Half full";
+                    diskSpaceOutput.diskSpaceStatus = "Half full";
                 }
-                else if (diskSpaceItem.percentUsed >= 75)
+                else if (diskSpaceOutput.percentUsed >= 75 && diskSpaceOutput.percentUsed < 90)
                 {
-                    diskSpaceItem.diskSpaceStatus = "Allmost full";
-                }else if (diskSpaceItem.percentUsed >= 85)
+                    diskSpaceOutput.diskSpaceStatus = "Allmost full";
+                }else if (diskSpaceOutput.percentUsed >= 90)
                 {
-                    diskSpaceItem.diskSpaceStatus = "Full";
+                    diskSpaceOutput.diskSpaceStatus = "Full";
                 }
                 
-                monitoringItems.Add(diskSpaceItem);
+                monitoringItems.Add(diskSpaceOutput);
             }
         }
     }
