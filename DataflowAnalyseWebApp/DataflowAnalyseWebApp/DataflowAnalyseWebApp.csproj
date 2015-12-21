@@ -149,7 +149,8 @@
     </Compile>
     <Compile Include="Models\ApiResponse.cs" />
     <Compile Include="Models\Event.cs" />
-    <Compile Include="Models\Monitoring.cs" />
+    <Compile Include="Models\Monitoring\Monitoring.cs" />
+    <Compile Include="Models\Monitoring\MonitoringDiskSpace.cs" />
     <Compile Include="Models\Position.cs" />
     <Compile Include="Models\Maintenance.cs" />
     <Compile Include="Models\PositionResponse.cs" />

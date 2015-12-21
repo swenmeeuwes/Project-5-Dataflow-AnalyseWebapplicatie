@@ -7,13 +7,13 @@ using System.Web.Http;
 using DataflowAnalyseWebApp.Controllers.Database;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using DataflowAnalyseWebApp.Models;
+using DataflowAnalyseWebApp.Models.Monitoring;
 
 namespace DataflowAnalyseWebApp.Controllers
 {
     public class UnitDiskSpaceController : ApiController
     {
-        //TODO add query by id, string status and percentage used
+        //TODO output must be small dataset. input = monitoring model.. output = monitoringDiskSpace
         private IMongoCollection<Monitoring> monitoringsCollection;
         private readonly string sensorType = "SystemInfo/AvailableDiskSpace";
 
@@ -32,60 +32,53 @@ namespace DataflowAnalyseWebApp.Controllers
             return monitoringItems;
         }
         // GET api/UnitDiskSpace/5
-        public IEnumerable<Monitoring> Get(long id)
+        public IEnumerable<Monitoring> Get(long unitId)
         {
-            GetDiskSpaceById(id);
+            GetDiskSpaceById(unitId);
             return monitoringItems;
         }
-
         private void GetDiskSpaceData()
         {
             var query = from monitoring in monitoringsCollection.AsQueryable()
                         where monitoring.sensorType == sensorType
                         select monitoring;
 
+            PutDataToList(query);
+        }
+
+        private void GetDiskSpaceById(long unitId)
+        {
+            var query = from monitoring in monitoringsCollection.AsQueryable()
+                        where monitoring.sensorType == sensorType && monitoring.unitId == unitId
+                        select monitoring;
+            PutDataToList(query);
+        }
+
+        private void PutDataToList(IQueryable<Monitoring> query)
+        {
             monitoringItems.Clear();
             foreach (var diskSpaceItem in query)
             {
+                diskSpaceItem.percentUsed = Math.Round((diskSpaceItem.maxValue / diskSpaceItem.sumValue) * 100, 2);
+
+                if (diskSpaceItem.percentUsed <= 25)
+                {
+                    diskSpaceItem.diskSpaceStatus = "Empty";
+                }
+                else if (diskSpaceItem.percentUsed > 25 && diskSpaceItem.percentUsed < 75)
+                {
+                    diskSpaceItem.diskSpaceStatus = "Half full";
+                }
+                else if (diskSpaceItem.percentUsed >= 75)
+                {
+                    diskSpaceItem.diskSpaceStatus = "Allmost full";
+                }else if (diskSpaceItem.percentUsed >= 85)
+                {
+                    diskSpaceItem.diskSpaceStatus = "Full";
+                }
+                
                 monitoringItems.Add(diskSpaceItem);
             }
         }
-
-        // GET api/UnitDiskSpace/GetFewDiskSpace
-        public IEnumerable<Monitoring> GetFewDiskSpace()
-        {
-            GetFewDiskSpaceData();
-            return monitoringItems;
-        }
-
-
-        private void GetFewDiskSpaceData()
-        {
-            var query = from monitoring in monitoringsCollection.AsQueryable()
-                        where monitoring.sensorType == sensorType && (monitoring.maxValue * 0.75) >= monitoring.sumValue
-                        select monitoring;
-
-            monitoringItems.Clear();
-            foreach (var diskSpaceItem in query)
-            {
-                monitoringItems.Add(diskSpaceItem);
-            }
-        }
-        private void GetDiskSpaceById(long id)
-        {
-            var query = from monitoring in monitoringsCollection.AsQueryable()
-                        where monitoring.sensorType == sensorType && monitoring.unitId == id
-                        select monitoring;
-        }
-
-        private void GetSmallDiskSpace()
-        {
-            var query = from monitoring in monitoringsCollection.AsQueryable()
-                        where monitoring.sensorType == sensorType && (monitoring.maxValue * 0.25) <= monitoring.sumValue
-                        select monitoring;
-        }
-
-        
-
     }
 }
