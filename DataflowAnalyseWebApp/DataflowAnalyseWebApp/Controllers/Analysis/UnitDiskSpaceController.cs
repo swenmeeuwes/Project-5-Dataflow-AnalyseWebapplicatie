@@ -13,9 +13,9 @@ namespace DataflowAnalyseWebApp.Controllers
 {
     public class UnitDiskSpaceController : ApiController
     {     
-        private IMongoCollection<Monitoring> monitoringsCollection;
-        private const string sensorType = "SystemInfo/AvailableDiskSpace";
-        private const int diskSpaceCapacity = 1300000000;
+        IMongoCollection<Monitoring> monitoringsCollection;
+        const string sensorType = "SystemInfo/AvailableDiskSpace";
+        const int diskSpaceCapacity = 1300000000;
         List<MonitoringDiskSpace> monitoringItems;
 
         public UnitDiskSpaceController()
