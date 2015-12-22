@@ -74,7 +74,7 @@ namespace DataflowAnalyseWebApp.Controllers
                 }
                 else if (diskSpaceOutput.percentUsed >= 75 && diskSpaceOutput.percentUsed < 90)
                 {
-                    diskSpaceOutput.diskSpaceStatus = "Allmost full";
+                    diskSpaceOutput.diskSpaceStatus = "Almost full";
                 }else if (diskSpaceOutput.percentUsed >= 90)
                 {
                     diskSpaceOutput.diskSpaceStatus = "Full";
