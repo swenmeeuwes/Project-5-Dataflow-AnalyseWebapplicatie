@@ -14,7 +14,7 @@ namespace DataflowAnalyseWebApp.Controllers {
         }
 
         public ActionResult UnitInformation() {
-            UnitInformation unit = new UnitInformation();
+            UnitInformationController unit = new UnitInformationController();
             List<Position> data = unit.GetData();
             ViewBag.Data = data;
             return View();

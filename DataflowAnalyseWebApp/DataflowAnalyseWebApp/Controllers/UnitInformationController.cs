@@ -1,38 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Net;
-using System.IO;
-using System.Web.Script.Serialization;
+using System.Net.Http;
+using System.Web.Http;
+using DataflowAnalyseWebApp.Controllers.Database;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using DataflowAnalyseWebApp.Models;
-using Newtonsoft.Json;
-using System.Collections;
-using System.Text;
 
-namespace DataflowAnalyseWebApp {
-    public class UnitInformation {
+namespace DataflowAnalyseWebApp.Controllers {
+    public class UnitInformationController : ApiController {
 
-        private List<Position> allData;
+        IMongoCollection<Position> positionCollection;
+
+        private List<Position> positionData;
         private List<Position> filteredData;
 
-        public UnitInformation() {
-            allData = GetData();
-            filteredData = new List<Position>();
-        }
-
-        /// <summary>
-        /// Downloads the JSON file from the webservice
-        /// </summary>
-        /// <returns>List of Position object, converted from the JSON file</returns>
-        public List<Position> GetData() {
-            WebClient client = new WebClient();
-            string rawData = client.DownloadString("http://145.24.222.160/DataFlowWebservice/api/positions");
-            string jsonArray = rawData.Substring(rawData.IndexOf("[{"));
-            jsonArray = jsonArray.Remove(jsonArray.Length - 1);
-
-            List<Position> data = JsonConvert.DeserializeObject<List<Position>>(jsonArray);
-            return data;
+        public UnitInformationController() {
+            DBController database = new DBController();
+            positionCollection = database.database.GetCollection<Position>("positions");
+            positionData = new List<Position>();
         }
 
         /// <summary>
