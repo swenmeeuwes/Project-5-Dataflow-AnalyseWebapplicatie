@@ -19,7 +19,7 @@ namespace DataflowAnalyseWebApp.Controllers
         // GET api/values
         public IEnumerable<Maintenance> Get()
         {
-            MongoDatabase database = new DBController().database;
+            MongoDatabase database = new DBController2().database;
             List<long> uniqueUnitIds = database.GetCollection<Position>("positions").FindAll().Select(p => p.unitId).Distinct().ToList();
             List<Maintenance> maintenanceList = new List<Maintenance>();
             foreach (var unitId in uniqueUnitIds)
@@ -38,7 +38,7 @@ namespace DataflowAnalyseWebApp.Controllers
 
         private Maintenance GetMaintenanceFromUnitId(long unitId)
         {
-            MongoDatabase database = new DBController().database;
+            MongoDatabase database = new DBController2().database;
             IMongoQuery query = Query<Position>.EQ(p => p.unitId, unitId);
             List<Position> positions = database.GetCollection<Position>("positions").Find(query).ToList();
 
@@ -77,11 +77,11 @@ namespace DataflowAnalyseWebApp.Controllers
         }
     }
 
-    class DBController
+    internal class DBController2
     {
         public MongoDatabase database { get; private set; }
 
-        public DBController()
+        public DBController2()
         {
             MongoServerSettings settings = new MongoServerSettings();
             settings.Server = new MongoServerAddress("145.24.222.160", 8010);
