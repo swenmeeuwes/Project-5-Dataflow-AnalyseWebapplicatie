@@ -1,5 +1,4 @@
-﻿using DataflowAnalyseWebApp.Controllers.Database;
-using DataflowAnalyseWebApp.Models;
+﻿using DataflowAnalyseWebApp.Models;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using Newtonsoft.Json;
@@ -75,6 +74,21 @@ namespace DataflowAnalyseWebApp.Controllers
         private double RadToDeg(double rad)
         {
             return (rad / Math.PI * 180.0);
+        }
+    }
+
+    class DBController
+    {
+        public MongoDatabase database { get; private set; }
+
+        public DBController()
+        {
+            MongoServerSettings settings = new MongoServerSettings();
+            settings.Server = new MongoServerAddress("145.24.222.160", 8010);
+
+            MongoServer server = new MongoServer(settings);
+
+            database = server.GetDatabase("Dataflow");
         }
     }
 }
