@@ -5,6 +5,7 @@ using System.Web;
 
 namespace DataflowAnalyseWebApp.Models
 {
+    [Obsolete]
     public class PositionResponse
     {
         public int statusCode { get; set; }

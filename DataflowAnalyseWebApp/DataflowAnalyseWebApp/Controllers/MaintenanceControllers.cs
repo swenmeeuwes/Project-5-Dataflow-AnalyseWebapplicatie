@@ -1,4 +1,7 @@
-﻿using DataflowAnalyseWebApp.Models;
+﻿using DataflowAnalyseWebApp.Controllers.Database;
+using DataflowAnalyseWebApp.Models;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,27 +20,37 @@ namespace DataflowAnalyseWebApp.Controllers
         // GET api/values
         public IEnumerable<Maintenance> Get()
         {
-            return new List<Maintenance>();
+            MongoDatabase database = new DBController().database;
+            List<long> uniqueUnitIds = database.GetCollection<Position>("positions").FindAll().Select(p => p.unitId).Distinct().ToList();
+            List<Maintenance> maintenanceList = new List<Maintenance>();
+            foreach (var unitId in uniqueUnitIds)
+            {
+                maintenanceList.Add(Get(unitId));
+            }
+
+            return maintenanceList;
         }
 
         // GET api/maintenance/5
         public Maintenance Get(long unitId)
         {
-            string webserviceUrl = WebConfigurationManager.AppSettings["WebserviceUrl"];
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webserviceUrl + "/positions/" + unitId.ToString());
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream receiveStream = response.GetResponseStream();
-            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            string responseString = readStream.ReadToEnd();
-            PositionResponse positionResponse = JsonConvert.DeserializeObject<PositionResponse>(responseString);
+            return GetMaintenanceFromUnitId(unitId);
+        }
+
+        private Maintenance GetMaintenanceFromUnitId(long unitId)
+        {
+            MongoDatabase database = new DBController().database;
+            IMongoQuery query = Query<Position>.EQ(p => p.unitId, unitId);
+            List<Position> positions = database.GetCollection<Position>("positions").Find(query).ToList();
+
 
             Maintenance maintenance = new Maintenance();
             maintenance.unitId = unitId;
 
             double travelled = 0;
-            for (int i = 0; i < positionResponse.result.Length - 1; i++)
+            for (int i = 0; i < positions.Count - 1; i++)
             {
-                travelled += CalcDistance(positionResponse.result[i].latitudeGps, positionResponse.result[i].longitudeGps, positionResponse.result[i+1].latitudeGps, positionResponse.result[i+1].longitudeGps);
+                travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
             }
             maintenance.kilometersTravelled = travelled;
             return maintenance;
@@ -49,6 +62,7 @@ namespace DataflowAnalyseWebApp.Controllers
             double dist = Math.Sin(DegToRad(lat1)) * Math.Sin(DegToRad(lat2)) + Math.Cos(DegToRad(lat1)) * Math.Cos(DegToRad(lat2)) * Math.Cos(DegToRad(theta));
             dist = Math.Acos(dist);
             dist = RadToDeg(dist);
+            dist = dist * 60 * 1.1515;
             dist = dist * 1.609344;
             return (dist);
         }
