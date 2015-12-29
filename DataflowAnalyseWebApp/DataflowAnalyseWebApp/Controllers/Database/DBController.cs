@@ -19,6 +19,5 @@ namespace DataflowAnalyseWebApp.Controllers.Database
             MongoClient client = new MongoClient(connectionString);
             database = client.GetDatabase("Dataflow");
         }
-
     }
 }

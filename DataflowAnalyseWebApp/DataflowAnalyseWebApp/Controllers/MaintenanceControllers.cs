@@ -26,7 +26,6 @@ namespace DataflowAnalyseWebApp.Controllers
             {
                 maintenanceList.Add(Get(unitId));
             }
-
             return maintenanceList;
         }
 

@@ -140,6 +140,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Database\DBController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\IgnitionController.cs" />
     <Compile Include="Controllers\MaintenanceControllers.cs" />
     <Compile Include="Controllers\Analysis\UnitDiskSpaceController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
@@ -149,6 +150,7 @@
     </Compile>
     <Compile Include="Models\ApiResponse.cs" />
     <Compile Include="Models\Event.cs" />
+    <Compile Include="Models\Ignition.cs" />
     <Compile Include="Models\Monitoring\Monitoring.cs" />
     <Compile Include="Models\Monitoring\MonitoringDiskSpace.cs" />
     <Compile Include="Models\Position.cs" />
