@@ -55,14 +55,13 @@ namespace DataflowAnalyseWebApp.Controllers
                 Ignition ignitionOutput = new Ignition();
 
                 ignitionOutput.unitId = ignitionItem.unitId;
-                ignitionOutput.ignitionCount = 
+
                 if (!ignitionDictionary.ContainsKey(ignitionOutput.unitId))
                 {
                     ignitionDictionary.Add(ignitionOutput.unitId, ignitionOutput);
-                }
+                } 
                 
             }
-
             ignitionData = ignitionDictionary.Values.ToList();
         }
     }
