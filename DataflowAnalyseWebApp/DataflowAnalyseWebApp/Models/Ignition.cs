@@ -9,6 +9,6 @@ namespace DataflowAnalyseWebApp.Models
     {
         public long unitId { get; set; }
         public int ignitionCount { get; set; }
-        public int ignitionAverage { get; set; }
+        public double ignitionAverage { get; set; }
     }
 }
