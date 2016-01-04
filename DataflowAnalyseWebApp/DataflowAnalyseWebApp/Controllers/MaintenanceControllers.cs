@@ -1,14 +1,19 @@
 ﻿using DataflowAnalyseWebApp.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Device.Location;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Configuration;
 using System.Web.Http;
 
@@ -20,11 +25,20 @@ namespace DataflowAnalyseWebApp.Controllers
         public IEnumerable<Maintenance> Get()
         {
             MongoDatabase database = new DBController2().database;
-            List<long> uniqueUnitIds = database.GetCollection<Position>("positions").FindAll().Select(p => p.unitId).Distinct().ToList();
+            IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
+            List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
+
             List<Maintenance> maintenanceList = new List<Maintenance>();
-            foreach (var unitId in uniqueUnitIds)
+
+            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(database, uniqueUnitId))));
+
+            try
             {
-                maintenanceList.Add(Get(unitId));
+                Task.WaitAll(task);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
             }
             return maintenanceList;
         }
@@ -46,11 +60,32 @@ namespace DataflowAnalyseWebApp.Controllers
             maintenance.unitId = unitId;
 
             double travelled = 0;
+            for (int i = 0; i + 10 < positions.Count - 1; i += 10)
+            {
+                GeoCoordinate position1 = new GeoCoordinate(positions[i].latitudeGps, positions[i].longitudeGps);
+                GeoCoordinate position2 = new GeoCoordinate(positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
+                travelled += position1.GetDistanceTo(position2) / 1000;
+                //travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
+            }
+            maintenance.kilometersTravelled = Math.Round(travelled, 2);
+            return maintenance;
+        }
+
+        private Maintenance GetMaintenanceFromUnitId(MongoDatabase database, long unitId)
+        {
+            IMongoQuery query = Query<Position>.EQ(p => p.unitId, unitId);
+            List<Position> positions = database.GetCollection<Position>("positions").Find(query).ToList();
+
+
+            Maintenance maintenance = new Maintenance();
+            maintenance.unitId = unitId;
+
+            double travelled = 0;
             for (int i = 0; i < positions.Count - 1; i++)
             {
                 travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
             }
-            maintenance.kilometersTravelled = travelled;
+            maintenance.kilometersTravelled = Math.Round(travelled, 2);
             return maintenance;
         }
 
@@ -64,12 +99,10 @@ namespace DataflowAnalyseWebApp.Controllers
             dist = dist * 1.609344;
             return (dist);
         }
-
         private double DegToRad(double deg)
         {
             return (deg * Math.PI / 180.0);
         }
-
         private double RadToDeg(double rad)
         {
             return (rad / Math.PI * 180.0);
