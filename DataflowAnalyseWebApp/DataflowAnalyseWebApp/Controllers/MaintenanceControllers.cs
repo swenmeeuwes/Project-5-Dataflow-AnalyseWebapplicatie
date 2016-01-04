@@ -65,7 +65,6 @@ namespace DataflowAnalyseWebApp.Controllers
                 GeoCoordinate position1 = new GeoCoordinate(positions[i].latitudeGps, positions[i].longitudeGps);
                 GeoCoordinate position2 = new GeoCoordinate(positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
                 travelled += position1.GetDistanceTo(position2) / 1000;
-                //travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
             }
             maintenance.kilometersTravelled = Math.Round(travelled, 2);
             return maintenance;
