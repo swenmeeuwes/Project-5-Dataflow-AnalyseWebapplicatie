@@ -138,6 +138,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\ConnectionController.cs" />
     <Compile Include="Controllers\Database\DBController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\IgnitionController.cs" />
@@ -149,6 +150,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\ApiResponse.cs" />
+    <Compile Include="Models\Connection.cs" />
     <Compile Include="Models\Event.cs" />
     <Compile Include="Models\Ignition.cs" />
     <Compile Include="Models\Monitoring\Monitoring.cs" />
