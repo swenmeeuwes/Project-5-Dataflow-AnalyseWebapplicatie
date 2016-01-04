@@ -1,4 +1,6 @@
 ﻿using DataflowAnalyseWebApp.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using Newtonsoft.Json;
@@ -9,6 +11,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Configuration;
 using System.Web.Http;
 
@@ -19,14 +23,21 @@ namespace DataflowAnalyseWebApp.Controllers
         // GET api/values
         public IEnumerable<Maintenance> Get()
         {
-            MongoDatabase database = new DBController().database;
-            List<long> uniqueUnitIds = database.GetCollection<Position>("positions").FindAll().Select(p => p.unitId).Distinct().ToList();
-            List<Maintenance> maintenanceList = new List<Maintenance>();
-            foreach (var unitId in uniqueUnitIds)
-            {
-                maintenanceList.Add(Get(unitId));
-            }
+            MongoDatabase database = new DBController2().database;
+            IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
+            List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
 
+            List<Maintenance> maintenanceList = new List<Maintenance>();
+
+            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(database, uniqueUnitId))));
+
+            try {
+                Task.WaitAll(task);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
             return maintenanceList;
         }
 
@@ -38,7 +49,25 @@ namespace DataflowAnalyseWebApp.Controllers
 
         private Maintenance GetMaintenanceFromUnitId(long unitId)
         {
-            MongoDatabase database = new DBController().database;
+            MongoDatabase database = new DBController2().database;
+            IMongoQuery query = Query<Position>.EQ(p => p.unitId, unitId);
+            List<Position> positions = database.GetCollection<Position>("positions").Find(query).ToList();
+
+
+            Maintenance maintenance = new Maintenance();
+            maintenance.unitId = unitId;
+
+            double travelled = 0;
+            for (int i = 0; i + 10 < positions.Count - 1; i+=10)
+            {
+                travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
+            }
+            maintenance.kilometersTravelled = Math.Round(travelled, 2);
+            return maintenance;
+        }
+
+        private Maintenance GetMaintenanceFromUnitId(MongoDatabase database, long unitId)
+        {
             IMongoQuery query = Query<Position>.EQ(p => p.unitId, unitId);
             List<Position> positions = database.GetCollection<Position>("positions").Find(query).ToList();
 
@@ -51,7 +80,7 @@ namespace DataflowAnalyseWebApp.Controllers
             {
                 travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
             }
-            maintenance.kilometersTravelled = travelled;
+            maintenance.kilometersTravelled = Math.Round(travelled, 2);
             return maintenance;
         }
 
@@ -65,23 +94,21 @@ namespace DataflowAnalyseWebApp.Controllers
             dist = dist * 1.609344;
             return (dist);
         }
-
         private double DegToRad(double deg)
         {
             return (deg * Math.PI / 180.0);
         }
-
         private double RadToDeg(double rad)
         {
             return (rad / Math.PI * 180.0);
         }
     }
 
-    class DBController
+    internal class DBController2
     {
         public MongoDatabase database { get; private set; }
 
-        public DBController()
+        public DBController2()
         {
             MongoServerSettings settings = new MongoServerSettings();
             settings.Server = new MongoServerAddress("145.24.222.160", 8010);
