@@ -60,7 +60,7 @@ namespace DataflowAnalyseWebApp.Controllers
             maintenance.unitId = unitId;
 
             double travelled = 0;
-            for (int i = 0; i + 10 < positions.Count - 1; i += 10)
+            for (int i = 0; i < positions.Count - 1; i ++)
             {
                 GeoCoordinate position1 = new GeoCoordinate(positions[i].latitudeGps, positions[i].longitudeGps);
                 GeoCoordinate position2 = new GeoCoordinate(positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
@@ -88,7 +88,7 @@ namespace DataflowAnalyseWebApp.Controllers
             maintenance.kilometersTravelled = Math.Round(travelled, 2);
             return maintenance;
         }
-
+        [Obsolete]
         private double CalcDistance(double lat1, double lon1, double lat2, double lon2)
         {
             double theta = lon1 - lon2;
@@ -99,10 +99,12 @@ namespace DataflowAnalyseWebApp.Controllers
             dist = dist * 1.609344;
             return (dist);
         }
+        [Obsolete]
         private double DegToRad(double deg)
         {
             return (deg * Math.PI / 180.0);
         }
+        [Obsolete]
         private double RadToDeg(double rad)
         {
             return (rad / Math.PI * 180.0);
