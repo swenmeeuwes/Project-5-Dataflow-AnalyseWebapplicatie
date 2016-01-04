@@ -139,6 +139,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\Database\DatabaseController.cs" />
     <Compile Include="Controllers\Database\DBController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\IgnitionController.cs" />
