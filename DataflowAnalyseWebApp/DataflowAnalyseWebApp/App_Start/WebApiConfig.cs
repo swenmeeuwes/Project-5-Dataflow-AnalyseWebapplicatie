@@ -15,7 +15,6 @@ namespace DataflowAnalyseWebApp
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
             config.MessageHandlers.Add(new WrappingHandler());
 
-            config.EnableCors();
 
             // Web API routes
             config.MapHttpAttributeRoutes();
