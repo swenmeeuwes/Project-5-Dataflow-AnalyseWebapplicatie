@@ -26,11 +26,11 @@ namespace DataflowAnalyseWebApp.Controllers
         public IEnumerable<Maintenance> Get()
         {
             MongoDatabase database = new DatabaseController().database;
+
             IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
             List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
 
             List<Maintenance> maintenanceList = new List<Maintenance>();
-
             Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(database, uniqueUnitId))));
 
             try
@@ -79,6 +79,24 @@ namespace DataflowAnalyseWebApp.Controllers
         }
 
         private Maintenance GetMaintenanceFromUnitId(MongoDatabase database, long unitId)
+        {
+            List<Position> positions = GetCollection<Position>(database, "positions", Query<Position>.EQ(p => p.unitId, unitId));
+
+            Maintenance maintenance = new Maintenance();
+            maintenance.unitId = unitId;
+
+            double travelled = 0;
+            for (int i = 0; i < positions.Count - 1; i++)
+            {
+                GeoCoordinate position1 = new GeoCoordinate(positions[i].latitudeGps, positions[i].longitudeGps);
+                GeoCoordinate position2 = new GeoCoordinate(positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
+                travelled += position1.GetDistanceTo(position2) / 1000;
+            }
+            maintenance.kilometersTravelled = Math.Round(travelled, 2);
+            return maintenance;
+        }
+
+        private Maintenance GetMaintenanceFromUnitId(MongoDatabase database, long unitId, long beginTimestamp, long endTimestamp)
         {
             List<Position> positions = GetCollection<Position>(database, "positions", Query<Position>.EQ(p => p.unitId, unitId));
 
