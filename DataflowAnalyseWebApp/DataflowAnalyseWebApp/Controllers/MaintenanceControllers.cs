@@ -77,7 +77,7 @@ namespace DataflowAnalyseWebApp.Controllers
         // GET api/maintenance/15030001/1426032000/1426118399
         public Maintenance Get(long unitId, long beginTimestamp, long endTimestamp)
         {
-            return GetMaintenanceFromUnitId(unitId);
+            return GetMaintenanceFromUnitId(unitId, beginTimestamp, endTimestamp);
         }
 
         private Maintenance GetMaintenanceFromUnitId(long unitId)
