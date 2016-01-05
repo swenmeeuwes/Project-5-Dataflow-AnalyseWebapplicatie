@@ -1,5 +1,6 @@
 ﻿using DataflowAnalyseWebApp.Controllers.Database;
 using DataflowAnalyseWebApp.Models;
+using Microsoft.Ajax.Utilities;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
@@ -22,16 +23,19 @@ namespace DataflowAnalyseWebApp.Controllers
 {
     public class MaintenanceController : ApiController
     {
-        // GET api/values
+        MongoDatabase database;
+        public MaintenanceController()
+        {
+            database = new DatabaseController().database;
+        }
+        // GET api/maintenance
         public IEnumerable<Maintenance> Get()
         {
-            MongoDatabase database = new DatabaseController().database;
-
             IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
             List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
 
             List<Maintenance> maintenanceList = new List<Maintenance>();
-            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(database, uniqueUnitId))));
+            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(uniqueUnitId))));
 
             try
             {
@@ -44,15 +48,14 @@ namespace DataflowAnalyseWebApp.Controllers
             return maintenanceList;
         }
 
+        // GET api/maintenance/1426032000/1426118399
         public IEnumerable<Maintenance> Get(long beginTimestamp, long endTimestamp)
         {
-            MongoDatabase database = new DatabaseController().database;
-
             IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
             List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
 
             List<Maintenance> maintenanceList = new List<Maintenance>();
-            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(database, uniqueUnitId, beginTimestamp, endTimestamp))));
+            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(uniqueUnitId, beginTimestamp, endTimestamp))));
 
             try
             {
@@ -65,43 +68,21 @@ namespace DataflowAnalyseWebApp.Controllers
             return maintenanceList;
         }
 
-        // GET api/maintenance/5
+        // GET api/maintenance/15030001
         public Maintenance Get(long unitId)
         {
             return GetMaintenanceFromUnitId(unitId);
         }
 
-        private List<T> GetCollection<T>(string collectionName, IMongoQuery query)
+        // GET api/maintenance/15030001/1426032000/1426118399
+        public Maintenance Get(long unitId, long beginTimestamp, long endTimestamp)
         {
-            MongoDatabase database = new DatabaseController().database;
-            return database.GetCollection<T>(collectionName).Find(query).ToList();
-        }
-        private List<T> GetCollection<T>(MongoDatabase database, string collectionName, IMongoQuery query)
-        {
-            return database.GetCollection<T>(collectionName).Find(query).ToList();
+            return GetMaintenanceFromUnitId(unitId);
         }
 
         private Maintenance GetMaintenanceFromUnitId(long unitId)
         {
-            List<Position> positions = GetCollection<Position>("positions", Query<Position>.EQ(p => p.unitId, unitId));
-
-            Maintenance maintenance = new Maintenance();
-            maintenance.unitId = unitId;
-
-            double travelled = 0;
-            for (int i = 0; i < positions.Count - 1; i ++)
-            {
-                GeoCoordinate position1 = new GeoCoordinate(positions[i].latitudeGps, positions[i].longitudeGps);
-                GeoCoordinate position2 = new GeoCoordinate(positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
-                travelled += position1.GetDistanceTo(position2) / 1000;
-            }
-            maintenance.kilometersTravelled = Math.Round(travelled, 2);
-            return maintenance;
-        }
-
-        private Maintenance GetMaintenanceFromUnitId(MongoDatabase database, long unitId)
-        {
-            List<Position> positions = GetCollection<Position>(database, "positions", Query<Position>.EQ(p => p.unitId, unitId));
+            List<Position> positions = database.GetCollection<Position>("positions").Find(Query<Position>.EQ(p => p.unitId, unitId)).ToList();
 
             Maintenance maintenance = new Maintenance();
             maintenance.unitId = unitId;
@@ -117,7 +98,7 @@ namespace DataflowAnalyseWebApp.Controllers
             return maintenance;
         }
 
-        private Maintenance GetMaintenanceFromUnitId(MongoDatabase database, long unitId, long beginTimestamp, long endTimestamp)
+        private Maintenance GetMaintenanceFromUnitId(long unitId, long beginTimestamp, long endTimestamp)
         {
             UnixTimestamp uts = new UnixTimestamp(beginTimestamp);
             DateTime utsDt = uts.ToDateTime();
@@ -125,7 +106,7 @@ namespace DataflowAnalyseWebApp.Controllers
             UnixTimestamp uts2 = new UnixTimestamp(endTimestamp);
             DateTime utsDt2 = uts2.ToDateTime();
 
-            List<Position> positions = GetCollection<Position>(database, "positions", Query<Position>.EQ(p => p.unitId, unitId)).Where(p => p.dateTime.Ticks > new UnixTimestamp(beginTimestamp).ToDateTime().Ticks && p.dateTime.Ticks < new UnixTimestamp(endTimestamp).ToDateTime().Ticks).ToList();
+            List<Position> positions = database.GetCollection<Position>("positions").Find(Query<Position>.EQ(p => p.unitId, unitId)).Where(p => p.dateTime.Ticks > new UnixTimestamp(beginTimestamp).ToDateTime().Ticks && p.dateTime.Ticks < new UnixTimestamp(endTimestamp).ToDateTime().Ticks).ToList();
 
             Maintenance maintenance = new Maintenance();
             maintenance.unitId = unitId;
