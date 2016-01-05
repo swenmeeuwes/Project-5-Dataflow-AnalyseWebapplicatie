@@ -44,6 +44,27 @@ namespace DataflowAnalyseWebApp.Controllers
             return maintenanceList;
         }
 
+        public IEnumerable<Maintenance> Get(long beginTimestamp, long endTimestamp)
+        {
+            MongoDatabase database = new DatabaseController().database;
+
+            IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
+            List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
+
+            List<Maintenance> maintenanceList = new List<Maintenance>();
+            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(database, uniqueUnitId, beginTimestamp, endTimestamp))));
+
+            try
+            {
+                Task.WaitAll(task);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
+            return maintenanceList;
+        }
+
         // GET api/maintenance/5
         public Maintenance Get(long unitId)
         {
@@ -98,7 +119,13 @@ namespace DataflowAnalyseWebApp.Controllers
 
         private Maintenance GetMaintenanceFromUnitId(MongoDatabase database, long unitId, long beginTimestamp, long endTimestamp)
         {
-            List<Position> positions = GetCollection<Position>(database, "positions", Query<Position>.EQ(p => p.unitId, unitId));
+            UnixTimestamp uts = new UnixTimestamp(beginTimestamp);
+            DateTime utsDt = uts.ToDateTime();
+
+            UnixTimestamp uts2 = new UnixTimestamp(endTimestamp);
+            DateTime utsDt2 = uts2.ToDateTime();
+
+            List<Position> positions = GetCollection<Position>(database, "positions", Query<Position>.EQ(p => p.unitId, unitId)).Where(p => p.dateTime.Ticks > new UnixTimestamp(beginTimestamp).ToDateTime().Ticks && p.dateTime.Ticks < new UnixTimestamp(endTimestamp).ToDateTime().Ticks).ToList();
 
             Maintenance maintenance = new Maintenance();
             maintenance.unitId = unitId;

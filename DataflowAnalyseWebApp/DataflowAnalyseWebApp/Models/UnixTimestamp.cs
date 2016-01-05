@@ -9,9 +9,9 @@ namespace DataflowAnalyseWebApp.Models
     {
         long unixTimestamp;
 
-        public UnixTimestamp(long unixTime)
+        public UnixTimestamp(long unixTimestamp)
         {
-            this.unixTimestamp = unixTime;
+            this.unixTimestamp = unixTimestamp;
         }
 
         public DateTime ToDateTime()

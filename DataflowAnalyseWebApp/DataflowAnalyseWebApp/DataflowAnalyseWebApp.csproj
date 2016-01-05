@@ -158,6 +158,7 @@
     <Compile Include="Models\Position.cs" />
     <Compile Include="Models\Maintenance.cs" />
     <Compile Include="Models\PositionResponse.cs" />
+    <Compile Include="Models\UnixTimestamp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

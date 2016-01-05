@@ -20,6 +20,12 @@ namespace DataflowAnalyseWebApp
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
+                name: "BetweenTimestamps",
+                routeTemplate: "api/{controller}/{beginTimestamp}/{endTimestamp}",
+                defaults: new { beginTimestamp = RouteParameter.Optional, endTimestamp = RouteParameter.Optional }
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "UnitId",
                 routeTemplate: "api/{controller}/{unitId}",
                 defaults: new { unitId = RouteParameter.Optional }
