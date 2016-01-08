@@ -17,12 +17,14 @@ namespace DataflowAnalyseWebApp.Controllers
         const string sensorType = "SystemInfo/AvailableDiskSpace";
         const int diskSpaceCapacity = 1300000000;
         List<MonitoringDiskSpace> monitoringItems;
+        List<DiskSpaceStatus> diskSpaceStatusItems;
 
         public UnitDiskSpaceController()
         {
             DBController database = new DBController();
             monitoringsCollection = database.database.GetCollection<Monitoring>("monitorings");
             monitoringItems = new List<MonitoringDiskSpace>();
+            diskSpaceStatusItems = new List<DiskSpaceStatus>();
         }
        
         // GET api/UnitDiskSpace
@@ -37,6 +39,33 @@ namespace DataflowAnalyseWebApp.Controllers
             GetDiskSpaceById(unitId);
             return monitoringItems;
         }
+
+        //Get api/UnitDiskSpace/id/status
+        public IEnumerable<DiskSpaceStatus> Get(long unitId, string status)
+        {
+            GetDiskSpaceData();
+            GetDiskSpaceStatus();
+
+            return diskSpaceStatusItems;
+        }
+
+        private void GetDiskSpaceStatus()
+        {
+
+            var query = from monitoring in monitoringItems.AsQueryable()
+                        group monitoring by monitoring.diskSpaceStatus into status
+                        select new {status.Key, Count = status.Count() };
+
+            foreach (var statusItem in query)
+            {
+                DiskSpaceStatus statusCount = new DiskSpaceStatus();
+                statusCount.diskSpaceStatus = statusItem.Key;
+                statusCount.statusAmount = statusItem.Count;
+
+                diskSpaceStatusItems.Add(statusCount);
+            }                        
+        }
+
         private void GetDiskSpaceData()
         {
             var query = from monitoring in monitoringsCollection.AsQueryable()

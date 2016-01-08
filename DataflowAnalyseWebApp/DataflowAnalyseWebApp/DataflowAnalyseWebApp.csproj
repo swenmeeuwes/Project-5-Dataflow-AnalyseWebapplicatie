@@ -181,6 +181,7 @@
     <Compile Include="Models\ApiResponse.cs" />
     <Compile Include="Models\Event.cs" />
     <Compile Include="Models\Ignition.cs" />
+    <Compile Include="Models\Monitoring\DiskSpaceStatus.cs" />
     <Compile Include="Models\Monitoring\Monitoring.cs" />
     <Compile Include="Models\Monitoring\MonitoringDiskSpace.cs" />
     <Compile Include="Models\Position.cs" />
