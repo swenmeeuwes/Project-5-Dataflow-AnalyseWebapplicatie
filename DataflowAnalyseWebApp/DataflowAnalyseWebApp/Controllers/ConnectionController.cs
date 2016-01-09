@@ -25,7 +25,25 @@ namespace DataflowAnalyseWebApp.Controllers
         public IEnumerable<Connection> Get()
         {
             List<Connection> connectionStatistics = calculateConnectionSpeed();
-            return connectionStatistics;
+            List<Connection> connectionAverage = calculateAverage(connectionStatistics);
+            return connectionAverage;
+        }
+
+        private List<Connection> calculateAverage(List<Connection> connectionStatistics)
+        {
+            List<Connection> connectionAverage = new List<Connection>();
+
+            var average = connectionStatistics.Select(c => c).GroupBy(con => con.unitId).ToDictionary(f => f.Key, f => f.Average(con => con.connectionSpeed));
+            foreach (KeyValuePair<long, double> entry in average) {
+
+                Connection connection = new Connection();
+                connection.unitId = entry.Key;
+                
+                connection.connectionSpeed = Math.Round(entry.Value, 0);
+                connectionAverage.Add(connection);
+            }
+
+            return connectionAverage;
         }
 
         private List<Connection> calculateConnectionSpeed()
