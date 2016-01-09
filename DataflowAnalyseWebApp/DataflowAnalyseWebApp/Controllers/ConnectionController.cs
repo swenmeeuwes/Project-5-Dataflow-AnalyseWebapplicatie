@@ -13,8 +13,7 @@ namespace DataflowAnalyseWebApp.Controllers
 {
     public class ConnectionController : ApiController
     {
-        IMongoCollection<Event> ignitionCollection;
-        
+
 
         public ConnectionController()
         {
@@ -22,7 +21,7 @@ namespace DataflowAnalyseWebApp.Controllers
 
         }
 
-        
+
         public IEnumerable<Connection> Get()
         {
             List<Connection> connectionStatistics = calculateConnectionSpeed();
@@ -33,38 +32,45 @@ namespace DataflowAnalyseWebApp.Controllers
         {
             IMongoCollection<Event> eventCollection = getEventCollection();
 
-            var ignitionOff = from events in eventCollection.AsQueryable()
-                          where events.portValue == 0 && events.port == "Ignition"
-                          select events;
             var ignitionOn = from events in eventCollection.AsQueryable()
-                              where events.portValue == 1 && events.port == "Ignition"
-                              select events;
-            var connectionOff = from events in eventCollection.AsQueryable()
-                              where events.portValue == 0 && events.port == "Connection"
-                              select events;
+                             where events.portValue == 1 && events.port == "Ignition"
+                             select events;
             var connectionOn = from events in eventCollection.AsQueryable()
-                              where events.portValue == 1 && events.port == "Connection"
-                              select events;
+                               where events.portValue == 1 && events.port == "Connection"
+                               select events;
 
             //TODO: ignitionOn - connectionOn (dichtsbijzijnde), ignitionOff - connectionOff (dichtsbijzijnde)
             //TODO: only subtract from same UnitId's
-            List<Event> ignitionOffList = ignitionOff.OrderBy(o => o.dateTime).ToList();
-            List<Event> ignitionOnList = ignitionOn.OrderBy(o => o.dateTime).ToList();
-            List<Event> connectionOffList = connectionOff.OrderBy(o => o.dateTime).ToList();
-            List<Event> connectionOnList = connectionOn.OrderBy(o => o.dateTime).ToList();
+            List<Event> ignitionOnList = ignitionOn.ToList();
+            List<Event> connectionOnList = connectionOn.ToList();
 
             List<Connection> connections = new List<Connection>();
 
-            for (int x = 0; x < ignitionOffList.Count; x++) {
-                if (ignitionOffList[x].unitId == connectionOffList[x].unitId) {
-                    Connection connection = new Connection();
-                    connection.connectionSpeed = (connectionOffList[x].dateTime - ignitionOffList[x].dateTime).Ticks;
-                    connection.unitId = ignitionOffList[x].unitId;
-                    connections.Add(connection);
+            for (int x = 0; x < ignitionOnList.Count; x++)
+            {
+                Connection fastestTime = new Connection();
+                fastestTime.connectionSpeed = -1;
+                for (int y = 0; y < connectionOnList.Count; y++)
+                {
+
+                    if (ignitionOnList[x].unitId == connectionOnList[y].unitId)
+                    {
+                        long elapsedTicks = (connectionOnList[y].dateTime.Ticks - ignitionOnList[x].dateTime.Ticks);
+                        TimeSpan elapsedSpan = new TimeSpan(elapsedTicks);
+                        double elapsedSeconds = elapsedSpan.TotalSeconds;
+                        Console.WriteLine(elapsedSeconds);
+                        if (elapsedSeconds > 0 && (elapsedSeconds < fastestTime.connectionSpeed || fastestTime.connectionSpeed < 0))
+                        {
+                            fastestTime.connectionSpeed = elapsedSeconds;
+                            fastestTime.unitId = connectionOnList[y].unitId;
+                        }
+                    }
+
                 }
+                    connections.Add(fastestTime);
             }
 
-            
+
 
 
 
@@ -72,7 +78,8 @@ namespace DataflowAnalyseWebApp.Controllers
         }
 
 
-        private IMongoCollection<Event> getEventCollection() {
+        private IMongoCollection<Event> getEventCollection()
+        {
 
             DBController database = new DBController();
             IMongoCollection<Event> eventCollection = database.database.GetCollection<Event>("events");
