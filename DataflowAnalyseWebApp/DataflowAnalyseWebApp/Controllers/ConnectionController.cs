@@ -85,7 +85,9 @@ namespace DataflowAnalyseWebApp.Controllers
                     }
 
                 }
+                if (fastestTime.connectionSpeed > 0) {
                     connections.Add(fastestTime);
+                }
             }
 
 
