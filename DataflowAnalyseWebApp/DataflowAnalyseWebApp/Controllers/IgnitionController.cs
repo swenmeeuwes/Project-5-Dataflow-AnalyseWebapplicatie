@@ -39,9 +39,16 @@ namespace DataflowAnalyseWebApp.Controllers
         }
 
         // GET api/ignition/5
-        public string Get(long id)
+        public IEnumerable<Ignition> Get(string beginDate, string endDate)
         {
-            return "value";
+            string[] beginDateSplitted = beginDate.Split('-');
+            string[] endDateSplitted = endDate.Split('-');
+
+            DateTime begin = new DateTime(Convert.ToInt32(beginDateSplitted[0]), Convert.ToInt32(beginDateSplitted[1]), Convert.ToInt32(beginDateSplitted[2]));
+            DateTime end = new DateTime(Convert.ToInt32(endDateSplitted[0]), Convert.ToInt32(endDateSplitted[1]), Convert.ToInt32(endDateSplitted[2]));
+
+            IMongoQuery query = Query<Ignition>.Where(m => m.dateTime >= begin && m.dateTime <= end); // Gebruikt position (p), van p check hij of het unitId en het opgegeven id hetzelfde zijn (EQ)
+            return GetDatabase().GetCollection<Ignition>("events").Find(query);
         }
 
         private void GetIgnitionData()
@@ -78,9 +85,8 @@ namespace DataflowAnalyseWebApp.Controllers
 
         private double calcAverage()
         {
-             double average = nodupl.Values.Average();
-            return average;
-            
+            double average = nodupl.Values.Average();
+            return average;            
         }
 
         private void AddDataToList(IQueryable<Event> dbQuery)
@@ -91,6 +97,7 @@ namespace DataflowAnalyseWebApp.Controllers
                 ignitionOutput.unitId = ignitionItem.Key;
                 ignitionOutput.ignitionCount = ignitionItem.Value;
                 ignitionOutput.ignitionAverage = calcAverage();
+                ignitionOutput.dateTime = null;
                 ignitionDictionary.Add(ignitionOutput.unitId, ignitionOutput);
             }
             ignitionData = ignitionDictionary.Values.ToList();

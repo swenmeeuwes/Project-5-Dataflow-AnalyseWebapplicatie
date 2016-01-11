@@ -10,5 +10,6 @@ namespace DataflowAnalyseWebApp.Models
         public long unitId { get; set; }
         public int ignitionCount { get; set; }
         public double ignitionAverage { get; set; }
+        public string dateTime { get; set; }
     }
 }
