@@ -13,13 +13,13 @@ namespace UnitInformationTest {
     [TestClass]
     public class UnitInformationTest {
 
-        private UnitInformation unit;
+        private UnitInformationController unit;
         private List<Position> allData;
         private List<Position> filteredData;
 
         [TestInitialize]
         public void SetUp() {
-            unit = new UnitInformation();
+            unit = new UnitInformationController();
             allData = unit.GetData();
             filteredData = unit.GetBadConnections();
         }

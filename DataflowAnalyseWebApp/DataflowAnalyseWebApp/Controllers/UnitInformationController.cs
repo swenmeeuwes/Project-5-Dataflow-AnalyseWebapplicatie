@@ -7,65 +7,57 @@ using System.Web.Http;
 using DataflowAnalyseWebApp.Controllers.Database;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using DataflowAnalyseWebApp.Models;
+using DataflowAnalyseWebApp.Models.Position;
 
 namespace DataflowAnalyseWebApp.Controllers {
     public class UnitInformationController : ApiController {
 
         IMongoCollection<Position> positionCollection;
 
-        private List<Position> positionData;
-        private List<Position> filteredData;
+        private List<PositionBadUnit> positionData;
 
         public UnitInformationController() {
             DBController database = new DBController();
             positionCollection = database.database.GetCollection<Position>("positions");
-            positionData = new List<Position>();
+            positionData = new List<PositionBadUnit>();
         }
 
         /// <summary>
-        /// Returns a dictionary containing the unitID as a key and the number of times it occurs as value
+        /// Retrieves only bad connections from the whole collection;
         /// </summary>
-        /// <returns>Dictionary containing number of occurences per unitID</returns>
-        public Dictionary<long, int> CheckOccurence() {
-            Dictionary<long, int> result = new Dictionary<long, int>();
-            foreach (Position unit in filteredData) {
-                if (result.ContainsKey(unit.unitId)) {
-                    result[unit.unitId] += 1;
+        public void GetBadConnections() {
+            positionData.Clear();
+            var query = from position in positionCollection.AsQueryable()
+                        where position.hdop >= 5 || position.numSatellite <= 4
+                        select position;
+            DataToList(query);
+            
+        }
+        
+        /// <summary>
+        /// Converts the data retrieved by the query to a list
+        /// </summary>
+        /// <param name="query"></param>
+        public void DataToList(IQueryable<Position> query) {
+            foreach (var item in query) {
+                if (!positionData.Exists(x => x.unitId == item.unitId)) {
+                    PositionBadUnit p = new PositionBadUnit();
+                    p.unitId = item.unitId;
+                    p.numSatellite = item.numSatellite;
+                    p.hdop = item.hdop;
+                    p.numOccurences = 1;
+                    positionData.Add(p);
                 }
                 else {
-                    result.Add(unit.unitId, 1);
+                    PositionBadUnit p = positionData.Find(x => x.unitId == item.unitId);
+                    p.numOccurences++;
                 }
             }
-            return result;
         }
-
-        /// <summary>
-        /// Removes all 'good' connections from the data
-        /// </summary>
-        /// <returns>List containing only bad connections</returns>
-        public List<Position> GetBadConnections() {
-            foreach (Position unit in allData) {
-                if (unit.numSatellite < 3 && unit.hdop > 5) {
-                    filteredData.Add(unit);
-                }
-            }
-            return filteredData;
-        }
-
-        /// <summary>
-        /// Makes a list of the unitIDs which occur more than x times in the bad connections list
-        /// </summary>
-        /// <returns>List of unitIDs with frequent bad connections</returns>
-        public List<long> GetFrequenceBadConnections() {
-            List<long> badUnits = new List<long>();
-            Dictionary<long, int> occurences = CheckOccurence();
-            foreach(var pair in occurences) {
-                if(pair.Value >= 100) {
-                    badUnits.Add(pair.Key);
-                }
-            }
-            return badUnits;
-        }
+        
+        public IEnumerable<PositionBadUnit> Get() {
+            GetBadConnections();
+            return positionData;
+        }      
     }
 }
