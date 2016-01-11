@@ -57,7 +57,8 @@ namespace DataflowAnalyseWebApp.Controllers {
         
         public IEnumerable<PositionBadUnit> Get() {
             GetBadConnections();
-            return positionData;
+            positionData = positionData.OrderByDescending(x => x.numOccurences).ToList();
+            return positionData.GetRange(0,5);
         }      
     }
 }
