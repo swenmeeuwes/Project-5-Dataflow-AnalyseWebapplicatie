@@ -15,8 +15,27 @@ namespace DataflowAnalyseWebApp
             config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html"));
             config.MessageHandlers.Add(new WrappingHandler());
 
+
             // Web API routes
             config.MapHttpAttributeRoutes();
+
+            config.Routes.MapHttpRoute(
+                name: "UnitIdBetweenTimestamps",
+                routeTemplate: "api/{controller}/{unitId}/{beginTimestamp}/{endTimestamp}",
+                defaults: new { unitId = RouteParameter.Optional }
+            );
+
+            config.Routes.MapHttpRoute(
+                 name: "IntervalDateTime",
+                 routeTemplate: "api/{controller}/{beginDate}/{endDate}",
+                 defaults: new { beginDate = RouteParameter.Optional, endDate = RouteParameter.Optional }
+);
+
+            config.Routes.MapHttpRoute(
+                name: "BetweenTimestamps",
+                routeTemplate: "api/{controller}/{beginTimestamp}/{endTimestamp}",
+                defaults: new { beginTimestamp = RouteParameter.Optional, endTimestamp = RouteParameter.Optional }
+            );
 
             config.Routes.MapHttpRoute(
                 name: "UnitId",
