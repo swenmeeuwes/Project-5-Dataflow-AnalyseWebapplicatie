@@ -1,4 +1,6 @@
 ﻿using DataflowAnalyseWebApp.Models;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -17,7 +19,14 @@ namespace DataflowAnalyseWebApp.Controllers
         // GET api/values
         public IEnumerable<Maintenance> Get()
         {
-            return new List<Maintenance>();
+            MongoDatabase database = new DBController2().database;
+            List<long> uniqueUnitIds = database.GetCollection<Position>("positions").FindAll().Select(p => p.unitId).Distinct().ToList();
+            List<Maintenance> maintenanceList = new List<Maintenance>();
+            foreach (var unitId in uniqueUnitIds)
+            {
+                maintenanceList.Add(Get(unitId));
+            }
+            return maintenanceList;
         }
 
         // GET api/maintenance/5
@@ -28,21 +37,18 @@ namespace DataflowAnalyseWebApp.Controllers
 
         private Maintenance GetMaintenanceFromUnitId(long unitId)
         {
-            string webserviceUrl = WebConfigurationManager.AppSettings["WebserviceUrl"];
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webserviceUrl + "/positions/" + unitId.ToString());
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream receiveStream = response.GetResponseStream();
-            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            string responseString = readStream.ReadToEnd();
-            PositionResponse positionResponse = JsonConvert.DeserializeObject<PositionResponse>(responseString);
+            MongoDatabase database = new DBController2().database;
+            IMongoQuery query = Query<Position>.EQ(p => p.unitId, unitId);
+            List<Position> positions = database.GetCollection<Position>("positions").Find(query).ToList();
+
 
             Maintenance maintenance = new Maintenance();
             maintenance.unitId = unitId;
 
             double travelled = 0;
-            for (int i = 0; i < positionResponse.result.Length - 1; i++)
+            for (int i = 0; i < positions.Count - 1; i++)
             {
-                travelled += CalcDistance(positionResponse.result[i].latitudeGps, positionResponse.result[i].longitudeGps, positionResponse.result[i + 1].latitudeGps, positionResponse.result[i + 1].longitudeGps);
+                travelled += CalcDistance(positions[i].latitudeGps, positions[i].longitudeGps, positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
             }
             maintenance.kilometersTravelled = travelled;
             return maintenance;
@@ -67,6 +73,21 @@ namespace DataflowAnalyseWebApp.Controllers
         private double RadToDeg(double rad)
         {
             return (rad / Math.PI * 180.0);
+        }
+    }
+
+    internal class DBController2
+    {
+        public MongoDatabase database { get; private set; }
+
+        public DBController2()
+        {
+            MongoServerSettings settings = new MongoServerSettings();
+            settings.Server = new MongoServerAddress("145.24.222.160", 8010);
+
+            MongoServer server = new MongoServer(settings);
+
+            database = server.GetDatabase("Dataflow");
         }
     }
 }
