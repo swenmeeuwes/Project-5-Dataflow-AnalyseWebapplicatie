@@ -1,12 +1,21 @@
-﻿using DataflowAnalyseWebApp.Models;
+﻿using DataflowAnalyseWebApp.Controllers.Database;
+using DataflowAnalyseWebApp.Models;
+using Microsoft.Ajax.Utilities;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Device.Location;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Configuration;
 using System.Web.Http;
 
@@ -14,59 +23,103 @@ namespace DataflowAnalyseWebApp.Controllers
 {
     public class MaintenanceController : ApiController
     {
-        // GET api/values
+        MongoDatabase database;
+        public MaintenanceController()
+        {
+            database = new DatabaseController().database;
+        }
+        // GET api/maintenance
         public IEnumerable<Maintenance> Get()
         {
-            return new List<Maintenance>();
+            IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
+            List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
+
+            List<Maintenance> maintenanceList = new List<Maintenance>();
+            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(uniqueUnitId))));
+
+            try
+            {
+                Task.WaitAll(task);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
+            return maintenanceList;
         }
 
-        // GET api/maintenance/5
+        // GET api/maintenance/1426032000/1426118399
+        public IEnumerable<Maintenance> Get(long beginTimestamp, long endTimestamp)
+        {
+            IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
+            List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
+
+            List<Maintenance> maintenanceList = new List<Maintenance>();
+            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(uniqueUnitId, beginTimestamp, endTimestamp))));
+
+            try
+            {
+                Task.WaitAll(task);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
+            return maintenanceList;
+        }
+
+        // GET api/maintenance/15030001
         public Maintenance Get(long unitId)
         {
             return GetMaintenanceFromUnitId(unitId);
         }
 
+        // GET api/maintenance/15030001/1426032000/1426118399
+        public Maintenance Get(long unitId, long beginTimestamp, long endTimestamp)
+        {
+            return GetMaintenanceFromUnitId(unitId, beginTimestamp, endTimestamp);
+        }
+
         private Maintenance GetMaintenanceFromUnitId(long unitId)
         {
-            string webserviceUrl = WebConfigurationManager.AppSettings["WebserviceUrl"];
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(webserviceUrl + "/positions/" + unitId.ToString());
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream receiveStream = response.GetResponseStream();
-            StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
-            string responseString = readStream.ReadToEnd();
-            PositionResponse positionResponse = JsonConvert.DeserializeObject<PositionResponse>(responseString);
+            List<Position> positions = database.GetCollection<Position>("positions").Find(Query<Position>.EQ(p => p.unitId, unitId)).ToList();
 
             Maintenance maintenance = new Maintenance();
             maintenance.unitId = unitId;
 
             double travelled = 0;
-            for (int i = 0; i < positionResponse.result.Length - 1; i++)
+            for (int i = 0; i < positions.Count - 1; i++)
             {
-                travelled += CalcDistance(positionResponse.result[i].latitudeGps, positionResponse.result[i].longitudeGps, positionResponse.result[i + 1].latitudeGps, positionResponse.result[i + 1].longitudeGps);
+                GeoCoordinate position1 = new GeoCoordinate(positions[i].latitudeGps, positions[i].longitudeGps);
+                GeoCoordinate position2 = new GeoCoordinate(positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
+                travelled += position1.GetDistanceTo(position2) / 1000;
             }
-            maintenance.kilometersTravelled = travelled;
+            maintenance.kilometersTravelled = Math.Round(travelled, 2);
             return maintenance;
         }
 
-        private double CalcDistance(double lat1, double lon1, double lat2, double lon2)
+        private Maintenance GetMaintenanceFromUnitId(long unitId, long beginTimestamp, long endTimestamp)
         {
-            double theta = lon1 - lon2;
-            double dist = Math.Sin(DegToRad(lat1)) * Math.Sin(DegToRad(lat2)) + Math.Cos(DegToRad(lat1)) * Math.Cos(DegToRad(lat2)) * Math.Cos(DegToRad(theta));
-            dist = Math.Acos(dist);
-            dist = RadToDeg(dist);
-            dist = dist * 60 * 1.1515;
-            dist = dist * 1.609344;
-            return (dist);
-        }
+            UnixTimestamp uts = new UnixTimestamp(beginTimestamp);
+            DateTime utsDt = uts.ToDateTime();
 
-        private double DegToRad(double deg)
-        {
-            return (deg * Math.PI / 180.0);
-        }
+            UnixTimestamp uts2 = new UnixTimestamp(endTimestamp);
+            DateTime utsDt2 = uts2.ToDateTime();
 
-        private double RadToDeg(double rad)
-        {
-            return (rad / Math.PI * 180.0);
+            List<Position> positions = database.GetCollection<Position>("positions").Find(Query<Position>.EQ(p => p.unitId, unitId)).Where(p => p.dateTime.Ticks > new UnixTimestamp(beginTimestamp).ToDateTime().Ticks && p.dateTime.Ticks < new UnixTimestamp(endTimestamp).ToDateTime().Ticks).ToList();
+
+            Maintenance maintenance = new Maintenance();
+            maintenance.unitId = unitId;
+
+            double travelled = 0;
+            for (int i = 0; i < positions.Count - 1; i++)
+            {
+                GeoCoordinate position1 = new GeoCoordinate(positions[i].latitudeGps, positions[i].longitudeGps);
+                GeoCoordinate position2 = new GeoCoordinate(positions[i + 1].latitudeGps, positions[i + 1].longitudeGps);
+                travelled += position1.GetDistanceTo(position2) / 1000;
+            }
+            maintenance.kilometersTravelled = Math.Round(travelled, 2);
+            return maintenance;
         }
     }
 }

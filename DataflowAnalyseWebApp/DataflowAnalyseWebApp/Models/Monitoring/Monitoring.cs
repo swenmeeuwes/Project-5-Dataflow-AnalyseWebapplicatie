@@ -1,13 +1,16 @@
 ﻿using MongoDB.Bson;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace DataflowAnalyseWebApp.Models
+namespace DataflowAnalyseWebApp.Models.Monitoring
 {
     public class Monitoring
     {
+        [JsonIgnore]
+        public ObjectId _id { get; set; }
         public long unitId { get; set; }
         public DateTime beginTime { get; set; }
         public DateTime endTime { get; set; }

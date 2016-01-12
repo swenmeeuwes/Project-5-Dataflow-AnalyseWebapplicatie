@@ -5,10 +5,9 @@ using System.Web;
 
 namespace DataflowAnalyseWebApp.Models
 {
-    [Obsolete]
-    public class PositionResponse
+    public class Connection
     {
-        public int statusCode { get; set; }
-        public Position[] result { get; set; }
+        public long unitId { get; set; }
+        public double connectionSpeed { get; set; }
     }
 }
