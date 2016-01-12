@@ -1,13 +1,17 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace DataflowAnalyseWebApp.Models
+namespace DataflowAnalyseWebApp.Models.Position
 {
     public class Position
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string _id;
         public long unitId { get; set; }
         public DateTime dateTime { get; set; }
         public float rdX { get; set; }
