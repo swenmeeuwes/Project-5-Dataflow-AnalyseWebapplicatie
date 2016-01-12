@@ -9,9 +9,7 @@ namespace DataflowAnalyseWebApp.Models.Position
 {
     public class Position
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string _id;
+        public ObjectId _id { get; set; }
         public long unitId { get; set; }
         public DateTime dateTime { get; set; }
         public float rdX { get; set; }
