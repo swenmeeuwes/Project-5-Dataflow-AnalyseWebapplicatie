@@ -1,5 +1,6 @@
 ﻿using DataflowAnalyseWebApp.Controllers.Database;
 using DataflowAnalyseWebApp.Models;
+using DataflowAnalyseWebApp.Models.PositionModels;
 using Microsoft.Ajax.Utilities;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;

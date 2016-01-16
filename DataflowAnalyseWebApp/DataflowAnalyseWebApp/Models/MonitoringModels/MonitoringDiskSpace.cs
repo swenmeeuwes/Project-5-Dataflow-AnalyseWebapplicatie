@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace DataflowAnalyseWebApp.Models.Monitoring
+namespace DataflowAnalyseWebApp.Models.MonitoringModels
 {
     public class MonitoringDiskSpace
     {

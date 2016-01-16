@@ -1,4 +1,5 @@
 ﻿using DataflowAnalyseWebApp.Models;
+using DataflowAnalyseWebApp.Models.PositionModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,6 @@ namespace DataflowAnalyseWebApp.Controllers {
     public class HomeController : Controller {
         public ActionResult Index() {
             ViewBag.Title = "Home Page";
-            return View();
-        }
-
-        public ActionResult UnitInformation() {
-            UnitInformationController unit = new UnitInformationController();
-            List<Position> data = unit.GetData();
-            ViewBag.Data = data;
             return View();
         }
     }

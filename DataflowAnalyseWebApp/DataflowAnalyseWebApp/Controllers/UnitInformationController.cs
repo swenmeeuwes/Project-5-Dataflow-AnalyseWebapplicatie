@@ -7,7 +7,7 @@ using System.Web.Http;
 using DataflowAnalyseWebApp.Controllers.Database;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using DataflowAnalyseWebApp.Models.Position;
+using DataflowAnalyseWebApp.Models.PositionModels;
 
 namespace DataflowAnalyseWebApp.Controllers {
     public class UnitInformationController : ApiController {
@@ -16,9 +16,22 @@ namespace DataflowAnalyseWebApp.Controllers {
 
         private List<PositionBadUnit> positionData;
 
+        public IMongoCollection<Position> PositionCollection
+        {
+            get
+            {
+                return positionCollection;
+            }
+
+            set
+            {
+                positionCollection = value;
+            }
+        }
+
         public UnitInformationController() {
             DBController database = new DBController();
-            positionCollection = database.database.GetCollection<Position>("positions");
+            PositionCollection = database.database.GetCollection<Position>("positions");
             positionData = new List<PositionBadUnit>();
         }
 
@@ -27,7 +40,7 @@ namespace DataflowAnalyseWebApp.Controllers {
         /// </summary>
         public void GetBadConnections() {
             positionData.Clear();
-            var query = from position in positionCollection.AsQueryable()
+            var query = from position in PositionCollection.AsQueryable()
                         where position.hdop >= 5 || position.numSatellite <= 4
                         select position;
             DataToList(query);
