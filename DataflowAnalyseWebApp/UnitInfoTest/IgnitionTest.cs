@@ -37,7 +37,7 @@ namespace UnitInfoTest
         }
 
         [TestMethod]
-        public void TestMethod1()
+        public void RemoveDuplicate()
         {
             Dictionary<long, int> test = ignition.RemoveDuplicatesFromList(dummyData);
             Assert.IsTrue(test.Count == 2);
