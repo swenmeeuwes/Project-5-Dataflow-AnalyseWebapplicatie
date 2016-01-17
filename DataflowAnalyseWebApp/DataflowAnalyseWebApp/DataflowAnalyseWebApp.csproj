@@ -67,7 +67,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
@@ -215,7 +214,6 @@
     <Content Include="bin\MongoDB.Driver.Core.dll" />
     <Content Include="bin\MongoDB.Driver.dll" />
     <Content Include="bin\MongoDB.Driver.Legacy.dll" />
-    <Content Include="bin\Newtonsoft.Json.dll" />
     <Content Include="bin\System.Net.Http.Formatting.dll" />
     <Content Include="bin\System.Web.Helpers.dll" />
     <Content Include="bin\System.Web.Http.dll" />
