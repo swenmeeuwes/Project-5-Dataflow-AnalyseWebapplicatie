@@ -26,14 +26,10 @@ namespace DataflowAnalyseWebApp.Controllers
         const string eventPort = "Ignition";
 
         public IgnitionController()
-        {
-            DBController database = new DBController();
-            dbcontroller = new DatabaseController();
-            ignitionCollection = database.database.GetCollection<Event>("events");
+        {           
             ignitionDictionary = new Dictionary<long, Ignition>();
             nodupl = new Dictionary<long, int>();
-            ignitionData = new List<Ignition>();
-            
+            ignitionData = new List<Ignition>();           
         }
 
         // GET api/ignition
@@ -47,6 +43,10 @@ namespace DataflowAnalyseWebApp.Controllers
             string[] beginDateSplitted = beginDate.Split('-');
             string[] endDateSplitted = endDate.Split('-');
 
+            DBController database = new DBController();
+            dbcontroller = new DatabaseController();
+            ignitionCollection = database.database.GetCollection<Event>("events");
+
             DateTime begin = new DateTime(Convert.ToInt32(beginDateSplitted[0]), Convert.ToInt32(beginDateSplitted[1]), Convert.ToInt32(beginDateSplitted[2]));
             DateTime end = new DateTime(Convert.ToInt32(endDateSplitted[0]), Convert.ToInt32(endDateSplitted[1]), Convert.ToInt32(endDateSplitted[2]));
 
@@ -58,26 +58,27 @@ namespace DataflowAnalyseWebApp.Controllers
         }
 
         
-        private void RemoveDuplicatesFromList(List<Event> EventList)
+        public Dictionary<long, int> RemoveDuplicatesFromList(List<Event> EventList)
         {
-            List<long> duplId = new List<long>();
+            List<long> duplicateIds = new List<long>();
 
             foreach (var item in EventList)
             {
-                duplId.Add(item.unitId);
+                duplicateIds.Add(item.unitId);
             }
 
-            var q = duplId.GroupBy(x => x)
+            var q = duplicateIds.GroupBy(x => x)
                 .Select(g => new { Value = g.Key, Count = g.Count() });
 
             foreach (var x in q)
             {
                 nodupl.Add(x.Value, x.Count);
             }
+            return nodupl;
         }
-        
 
-        private double CalculateAverage()
+
+        public double CalculateAverage(Dictionary<long, int> nodupl)
         {
              double average = nodupl.Values.Average();
             return average;
@@ -91,7 +92,7 @@ namespace DataflowAnalyseWebApp.Controllers
                 Ignition ignitionOutput = new Ignition();
                 ignitionOutput.unitId = ignitionItem.Key;
                 ignitionOutput.ignitionCount = ignitionItem.Value;
-                ignitionOutput.ignitionAverage = CalculateAverage();
+                ignitionOutput.ignitionAverage = CalculateAverage(nodupl);
                 ignitionDictionary.Add(ignitionOutput.unitId, ignitionOutput);
             }
             ignitionData = ignitionDictionary.Values.ToList();
