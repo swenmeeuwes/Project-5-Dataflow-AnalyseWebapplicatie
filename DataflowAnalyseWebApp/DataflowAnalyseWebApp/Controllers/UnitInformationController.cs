@@ -38,7 +38,7 @@ namespace DataflowAnalyseWebApp.Controllers {
         /// <summary>
         /// Retrieves only bad connections from the whole collection;
         /// </summary>
-        public void GetBadConnections() {
+        public void RetrieveBadConnections() {
             positionData.Clear();
             var query = from position in PositionCollection.AsQueryable()
                         where position.hdop >= 5 || position.numSatellite <= 4
@@ -69,7 +69,7 @@ namespace DataflowAnalyseWebApp.Controllers {
         }
         
         public IEnumerable<PositionBadUnit> Get() {
-            GetBadConnections();
+            RetrieveBadConnections();
             positionData = positionData.OrderByDescending(x => x.numOccurences).ToList();
             return positionData.GetRange(0,5);
         }      

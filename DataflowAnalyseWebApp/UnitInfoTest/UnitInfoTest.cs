@@ -14,32 +14,22 @@ namespace UnitInformationTest {
     [TestClass]
     public class UnitInformationTest {
 
-        //private UnitInformationController unit;
-        //private List<Position> allData;
-        //private List<Position> filteredData;
+        private UnitInformationController unit;
+        private IEnumerable<PositionBadUnit> data;
 
-        //[TestInitialize]
-        //public void SetUp() {
-        //    unit = new UnitInformationController();
-        //    allData = unit.GetData();
-        //    filteredData = unit.GetBadConnections();
-        //}
+        [TestInitialize]
+        public void SetUp() {
+            unit = new UnitInformationController();
+            data = unit.Get();
+        }
 
-        //[TestMethod]
-        //public void TestGetData() {
-        //    Assert.IsFalse(allData.Count == 0);
-        //}
-
-        //[TestMethod]
-        //public void TestGetBadConnections() {
-        //    Assert.IsTrue(allData.Count > filteredData.Count);
-        //}
-
-        //[TestMethod]
-        //public void TestCheckOccurance() {
-        //    Dictionary<long, int> occurences = unit.CheckOccurence();
-        //    Assert.IsFalse(occurences.Count == 0);
-        //}
+        [TestMethod]
+        public void TestGetData() {
+            int length = 0;
+            foreach (PositionBadUnit p in data)
+                length++;
+            Assert.IsTrue(length == 0);
+        }
 
         //[TestMethod]
         //public void TestFrequenceBadConnections() {
@@ -54,11 +44,10 @@ namespace UnitInformationTest {
         //    Assert.IsTrue(hundredOrMore);
         //}
 
-        //[TestCleanup]
-        //public void TearDown() {
-        //    unit = null;
-        //    allData = null;
-        //    filteredData = null;
-        //}
+        [TestCleanup]
+        public void TearDown() {
+            unit = null;
+            data = null;
+        }
     }
 }
