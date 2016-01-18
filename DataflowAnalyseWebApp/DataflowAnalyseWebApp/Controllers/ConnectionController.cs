@@ -29,7 +29,7 @@ namespace DataflowAnalyseWebApp.Controllers
             return connectionAverage;
         }
 
-        private List<Connection> calculateAverage(List<Connection> connectionStatistics)
+        public List<Connection> calculateAverage(List<Connection> connectionStatistics)
         {
             List<Connection> connectionAverage = new List<Connection>();
 
