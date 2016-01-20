@@ -29,7 +29,7 @@ namespace DataflowAnalyseWebApp
                  name: "IntervalDateTime",
                  routeTemplate: "api/{controller}/{beginDate}/{endDate}",
                  defaults: new { beginDate = RouteParameter.Optional, endDate = RouteParameter.Optional }
-);
+            );
 
             config.Routes.MapHttpRoute(
                 name: "BetweenTimestamps",
