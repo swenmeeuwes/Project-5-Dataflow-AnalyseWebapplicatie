@@ -81,6 +81,13 @@ namespace DataflowAnalyseWebApp.Controllers
             return GetMaintenanceFromUnitId(unitId, beginTimestamp, endTimestamp);
         }
 
+        [Route("api/maintenance/alert/{threshold}")]
+        public IEnumerable<Maintenance> GetAlerts(long threshold)
+        {
+            List<Maintenance> maintenanceList = Get().ToList();
+            return maintenanceList.Where((x) => x.kilometersTravelled >= threshold);
+        }
+
         private Maintenance GetMaintenanceFromUnitId(long unitId)
         {
             List<Position> positions = database.GetCollection<Position>("positions").Find(Query<Position>.EQ(p => p.unitId, unitId)).ToList();
