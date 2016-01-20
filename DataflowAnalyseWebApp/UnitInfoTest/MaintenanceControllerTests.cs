@@ -14,11 +14,12 @@ namespace DataflowAnalyseWebApp.Controllers.Tests
     public class MaintenanceControllerTests
     {
         [TestMethod()]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), "Arguments out of range are inappropriately allowed.")]
         public void GetDistance()
         {
             // Boundary values to test (Boundary value test)
-            int[] latitudeBoundaryValues = new int[] { -90, 0, 90 };
-            int[] longitudeBoundaryValues = new int[] { -180, 0, 180 };
+            int[] latitudeBoundaryValues = new int[] { -91, -90, -89, -1, 0, 1, 89, 90, 91 };
+            int[] longitudeBoundaryValues = new int[] { -181, -180, -179, -1, 0, 1, 179, 180, 181 };
 
             // The test shouldn't run if the array's aren't the same length, otherwise it might ignore some tests.
             Assert.AreEqual(latitudeBoundaryValues.Length, longitudeBoundaryValues.Length);
@@ -32,12 +33,18 @@ namespace DataflowAnalyseWebApp.Controllers.Tests
         }
 
         [TestMethod()]
+        [ExpectedException(typeof(ArgumentOutOfRangeException), "Arguments out of range are inappropriately allowed.")]
         public void ToDateTime()
         {
-            // (GMT): Tue, 05 Jan 2016 15:57:58 GMT
-            UnixTimestamp unixTimestamp = new UnixTimestamp(1452009478);
-            DateTime dateTime = new DateTime(2016, 1, 5, 15, 57, 58, DateTimeKind.Utc);
-            Assert.AreEqual(dateTime, unixTimestamp.ToDateTime());
+            UnixTimestamp[] unixTimestamp = new UnixTimestamp[] { new UnixTimestamp(-1), new UnixTimestamp(0), new UnixTimestamp(1), new UnixTimestamp(1452009478) };
+
+            for (int i = 0; i < unixTimestamp.Length; i++)
+            {
+                DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                dateTime = dateTime.AddSeconds(unixTimestamp[i].unixTimestamp).ToLocalTime();
+
+                Assert.AreEqual(dateTime, unixTimestamp[i].ToDateTime());
+            }
         }
     }
 }
