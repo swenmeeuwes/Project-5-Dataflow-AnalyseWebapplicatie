@@ -182,6 +182,7 @@
     <Compile Include="Controllers\ConnectionController.cs" />
     <Compile Include="Controllers\Database\DatabaseController.cs" />
     <Compile Include="Controllers\Database\DBController.cs" />
+    <Compile Include="Controllers\DocumentHandler.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\IgnitionController.cs" />
     <Compile Include="Controllers\MaintenanceControllers.cs" />
