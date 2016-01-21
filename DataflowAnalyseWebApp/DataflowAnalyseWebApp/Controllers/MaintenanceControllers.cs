@@ -24,27 +24,35 @@ namespace DataflowAnalyseWebApp.Controllers
 {
     public class MaintenanceController : ApiController
     {
+        const string analysisName = "Maintanence";
         MongoDatabase database;
+        DocumentHandler documentHandler;
         public MaintenanceController()
         {
             database = new DatabaseController().database;
+            documentHandler = new DocumentHandler();
         }
         // GET api/maintenance
         public IEnumerable<Maintenance> Get()
         {
-            IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
-            List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
-
             List<Maintenance> maintenanceList = new List<Maintenance>();
-            Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(uniqueUnitId))));
+            if (documentHandler.Exists(analysisName))
+                maintenanceList = documentHandler.Load<Maintenance>(analysisName).ToList();
+            else
+            {
+                List<long> uniqueUnitIds = GetUniqueUnitIds();
 
-            try
-            {
-                Task.WaitAll(task);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
+                Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(uniqueUnitId))));
+
+                try
+                {
+                    Task.WaitAll(task);
+                    documentHandler.Save(analysisName, maintenanceList);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.StackTrace);
+                }
             }
             return maintenanceList;
         }
@@ -52,10 +60,9 @@ namespace DataflowAnalyseWebApp.Controllers
         // GET api/maintenance/1426032000/1426118399
         public IEnumerable<Maintenance> Get(long beginTimestamp, long endTimestamp)
         {
-            IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
-            List<long> uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
+            List<long> uniqueUnitIds = GetUniqueUnitIds();
 
-            List<Maintenance> maintenanceList = new List<Maintenance>();
+            List <Maintenance> maintenanceList = new List<Maintenance>();
             Task task = Task.Factory.StartNew(() => Parallel.ForEach(uniqueUnitIds, uniqueUnitId => maintenanceList.Add(GetMaintenanceFromUnitId(uniqueUnitId, beginTimestamp, endTimestamp))));
 
             try
@@ -128,6 +135,21 @@ namespace DataflowAnalyseWebApp.Controllers
             }
             maintenance.kilometersTravelled = Math.Round(travelled, 2);
             return maintenance;
+        }
+
+        private List<long> GetUniqueUnitIds()
+        {
+            List<long> uniqueUnitIds = new List<long>();
+            if (documentHandler.Exists("UniqueUnitIds"))
+                uniqueUnitIds = documentHandler.Load<long>("UniqueUnitIds").ToList();
+            else
+            {
+                IEnumerable<BsonValue> bsonValues = database.GetCollection<Position>("positions").Distinct("unitId");
+                uniqueUnitIds = BsonSerializer.Deserialize<List<long>>(bsonValues.ToJson());
+
+                documentHandler.Save("UniqueUnitIds", uniqueUnitIds);
+            }
+            return uniqueUnitIds;
         }
     }
 }
