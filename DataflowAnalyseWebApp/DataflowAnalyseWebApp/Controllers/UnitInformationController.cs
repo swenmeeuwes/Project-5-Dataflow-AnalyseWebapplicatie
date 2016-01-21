@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using DataflowAnalyseWebApp.Controllers.Database;
 using MongoDB.Driver;
-using MongoDB.Driver.Builders;
 using DataflowAnalyseWebApp.Models.PositionModels;
 
 namespace DataflowAnalyseWebApp.Controllers {
@@ -30,8 +26,6 @@ namespace DataflowAnalyseWebApp.Controllers {
         }
 
         public UnitInformationController() {
-            DBController database = new DBController();
-            PositionCollection = database.database.GetCollection<Position>("positions");
             positionData = new List<PositionBadUnit>();
         }
 
@@ -67,8 +61,48 @@ namespace DataflowAnalyseWebApp.Controllers {
                 }
             }
         }
+
+        public int FindAverage(List<PositionBadUnit> list) {
+            int sumOfAllElements = 0;
+            int numberOfElements = list.Count();
+            foreach(PositionBadUnit p in list) {
+                sumOfAllElements += p.numOccurences;
+            }
+
+            return sumOfAllElements / numberOfElements;
+        }
+
+        public int FindMaximum(List<PositionBadUnit> list) {
+            int max = list[0].numOccurences;
+            for(int i = 1; i < list.Count(); i++) {
+                if (list[i].numOccurences > max) {
+                    max = list[i].numOccurences;
+                }
+            }
+            return max;
+        }
+
+        public int FindMinimum(List<PositionBadUnit> list) {
+            int min = list[0].numOccurences;
+            for (int i = 1; i < list.Count(); i++) {
+                if (list[i].numOccurences < min) {
+                    min = list[i].numOccurences = min;
+                }
+            }
+            return min;
+        }
+
+        public int FindSum(List<PositionBadUnit> list) {
+            int sum = 0;
+            foreach(PositionBadUnit p in list) {
+                sum += p.numOccurences;
+            }
+            return sum;
+        }
         
         public IEnumerable<PositionBadUnit> Get() {
+            DBController database = new DBController();
+            PositionCollection = database.database.GetCollection<Position>("positions");
             RetrieveBadConnections();
             positionData = positionData.OrderByDescending(x => x.numOccurences).ToList();
             return positionData.GetRange(0,5);
