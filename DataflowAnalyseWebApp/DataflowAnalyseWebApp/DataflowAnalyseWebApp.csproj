@@ -179,31 +179,30 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\Analysis\UnitDiskSpaceController.cs" />
-    <Compile Include="Controllers\ConnectionController.cs" />
+    <Compile Include="Controllers\Analysis\ConnectionController.cs" />
     <Compile Include="Controllers\Database\DatabaseController.cs" />
     <Compile Include="Controllers\Database\DBController.cs" />
     <Compile Include="Controllers\DocumentHandler.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\IgnitionController.cs" />
-    <Compile Include="Controllers\MaintenanceControllers.cs" />
-    <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Controllers\Analysis\HomeController.cs" />
+    <Compile Include="Controllers\Analysis\IgnitionController.cs" />
+    <Compile Include="Controllers\Analysis\MaintenanceControllers.cs" />
     <Compile Include="Controllers\WrappingHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\ApiResponse.cs" />
-    <Compile Include="Models\Connection.cs" />
-    <Compile Include="Models\Event.cs" />
-    <Compile Include="Models\Ignition.cs" />
-    <Compile Include="Models\Maintenance.cs" />
-    <Compile Include="Models\MonitoringModels\Monitoring.cs" />
-    <Compile Include="Models\MonitoringModels\MonitoringDiskSpace.cs" />
-    <Compile Include="Models\PositionModels\Position.cs" />
-    <Compile Include="Models\PositionModels\PositionBadUnit.cs" />
-    <Compile Include="Models\PositionResponse.cs" />
+    <Compile Include="Models\ResponseModels\ApiResponse.cs" />
+    <Compile Include="Models\DatabaseModels\Connection.cs" />
+    <Compile Include="Models\DatabaseModels\Event.cs" />
+    <Compile Include="Models\ResponseModels\Ignition.cs" />
+    <Compile Include="Models\ResponseModels\Maintenance.cs" />
+    <Compile Include="Models\DatabaseModels\Monitoring.cs" />
+    <Compile Include="Models\ResponseModels\MonitoringDiskSpace.cs" />
+    <Compile Include="Models\DatabaseModels\Position.cs" />
+    <Compile Include="Models\ResponseModels\PositionBadUnit.cs" />
+    <Compile Include="Models\ResponseModels\PositionResponse.cs" />
     <Compile Include="Models\UnixTimestamp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controllers\UnitInformationController.cs" />
+    <Compile Include="Controllers\Analysis\UnitInformationController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\HelpPage\HelpPage.css" />
@@ -267,7 +266,6 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\UnitInformation.cshtml" />
     <Content Include="Scripts\jquery-2.2.0.min.map" />
   </ItemGroup>
   <ItemGroup>

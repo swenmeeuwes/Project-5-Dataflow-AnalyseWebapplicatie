@@ -24,7 +24,18 @@ namespace DataflowAnalyseWebApp.Controllers
             monitoringsCollection = database.database.GetCollection<Monitoring>("monitorings");
             monitoringItems = new List<MonitoringDiskSpace>();
         }
-       
+
+        [Route("api/unitdiskspace/alert/{threshold}")]
+        public IEnumerable<long> GetAlerts(long threshold)
+        {
+            List<MonitoringDiskSpace> monitoringList = Get().Distinct().ToList();
+            var query = from item in monitoringList.AsQueryable()
+                   where item.percentUsed >= threshold
+                   select item.unitId;
+
+            return query.Distinct();
+        }
+
         // GET api/UnitDiskSpace
         public IEnumerable<MonitoringDiskSpace> Get()
         {

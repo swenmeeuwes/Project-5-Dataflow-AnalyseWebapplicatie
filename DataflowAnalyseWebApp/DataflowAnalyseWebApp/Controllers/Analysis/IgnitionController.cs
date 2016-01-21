@@ -32,6 +32,17 @@ namespace DataflowAnalyseWebApp.Controllers
             ignitionData = new List<Ignition>();           
         }
 
+        //[Route("api/ignition/alert/{threshold}")]
+        //public IEnumerable<long> GetAlerts(int threshold)
+        //{
+        //    List<Ignition> unitList = Get().Distinct().ToList();
+        //    var query = from item in unitList.AsQueryable()
+        //                where 
+        //                select item.unitId;
+
+        //    return query.Distinct();
+        //}
+
         // GET api/ignition
         public IEnumerable<Ignition> Get()
         {            

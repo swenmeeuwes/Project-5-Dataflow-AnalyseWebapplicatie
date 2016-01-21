@@ -9,6 +9,7 @@ namespace DataflowAnalyseWebApp.Controllers {
     public class UnitInformationController : ApiController {
 
         IMongoCollection<Position> positionCollection;
+        DBController database;
 
         private List<PositionBadUnit> positionData;
 
@@ -27,6 +28,7 @@ namespace DataflowAnalyseWebApp.Controllers {
 
         public UnitInformationController() {
             positionData = new List<PositionBadUnit>();
+            database = new DBController();
         }
 
         /// <summary>
@@ -101,11 +103,25 @@ namespace DataflowAnalyseWebApp.Controllers {
         }
         
         public IEnumerable<PositionBadUnit> Get() {
-            DBController database = new DBController();
             PositionCollection = database.database.GetCollection<Position>("positions");
             RetrieveBadConnections();
             positionData = positionData.OrderByDescending(x => x.numOccurences).ToList();
             return positionData.GetRange(0,5);
-        }      
+        }
+
+        [Route("api/unitinformation/alert/{thresholdSatellite}/{thresholdHDOP}")]
+        public IEnumerable<long> GetAlerts(int thresholdSatellite, int thresholdHDOP)
+        {
+            PositionCollection = database.database.GetCollection<Position>("positions");
+            RetrieveBadConnections();
+            positionData = positionData.OrderByDescending(x => x.numOccurences).ToList();
+
+            List<PositionBadUnit> unitList = positionData.Distinct().ToList();
+            var query = from item in unitList.AsQueryable()
+                        where item.numSatellite <= thresholdSatellite || item.hdop >= thresholdHDOP
+                        select item.unitId;
+
+            return query.Distinct();
+        }
     }
 }

@@ -13,14 +13,9 @@ namespace DataflowAnalyseWebApp.Controllers
 {
     public class ConnectionController : ApiController
     {
-
-
         public ConnectionController()
         {
-
-
         }
-
 
         public IEnumerable<Connection> Get()
         {
