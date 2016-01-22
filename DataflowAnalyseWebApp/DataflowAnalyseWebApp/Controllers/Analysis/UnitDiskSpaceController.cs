@@ -78,8 +78,10 @@ namespace DataflowAnalyseWebApp.Controllers
         private void GetDiskSpaceById(long unitId)
         {
             var query = from monitoring in monitoringsCollection.AsQueryable()
-                        where monitoring.sensorType == sensorType && monitoring.unitId == unitId
+                        where monitoring.sensorType == sensorType
+                        orderby monitoring.unitId
                         select monitoring;
+
             PutDataToList(query);
         }
 
@@ -103,12 +105,42 @@ namespace DataflowAnalyseWebApp.Controllers
                 }
                 else if (diskSpaceOutput.percentUsed >= 75 && diskSpaceOutput.percentUsed < 90)
                 {
-                    diskSpaceOutput.diskSpaceStatus = "Almost full";
+                    diskSpaceOutput.diskSpaceStatus = "Allmost full";
                 }else if (diskSpaceOutput.percentUsed >= 90)
                 {
                     diskSpaceOutput.diskSpaceStatus = "Full";
                 }
                 
+                monitoringItems.Add(diskSpaceOutput);
+            }
+        }
+        private void PutDataToListSecond(IQueryable<Monitoring> query)
+        {
+            monitoringItems.Clear();
+            foreach (var diskSpaceItem in query)
+            {
+                MonitoringDiskSpace diskSpaceOutput = new MonitoringDiskSpace();
+                diskSpaceOutput.unitId = diskSpaceItem.unitId;
+                diskSpaceOutput.endTime = diskSpaceItem.endTime;
+                diskSpaceOutput.percentUsed = Math.Round((diskSpaceItem.maxValue / diskSpaceCapacity) * 100, 2);
+
+                if (diskSpaceOutput.percentUsed <= 25)
+                {
+                    diskSpaceOutput.diskSpaceStatus = "Empty";
+                }
+                else if (diskSpaceOutput.percentUsed > 25 && diskSpaceOutput.percentUsed < 75)
+                {
+                    diskSpaceOutput.diskSpaceStatus = "Half full";
+                }
+                else if (diskSpaceOutput.percentUsed >= 75 && diskSpaceOutput.percentUsed < 90)
+                {
+                    diskSpaceOutput.diskSpaceStatus = "Allmost full";
+                }
+                else if (diskSpaceOutput.percentUsed >= 90)
+                {
+                    diskSpaceOutput.diskSpaceStatus = "Full";
+                }
+
                 monitoringItems.Add(diskSpaceOutput);
             }
         }
