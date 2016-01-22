@@ -7,7 +7,6 @@ using System.Web.Http;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using DataflowAnalyseWebApp.Controllers.Database;
-using DataflowAnalyseWebApp.Models.MonitoringModels;
 using DataflowAnalyseWebApp.Models.Monitoring;
 
 namespace DataflowAnalyseWebApp.Controllers
