@@ -28,7 +28,7 @@ namespace DataflowAnalyseWebApp.Controllers {
 
         public UnitInformationController() {
             positionData = new List<PositionBadUnit>();
-            
+            database = new DBController();
         }
 
         /// <summary>
@@ -103,7 +103,6 @@ namespace DataflowAnalyseWebApp.Controllers {
         }
         
         public IEnumerable<PositionBadUnit> Get() {
-            database = new DBController();
             PositionCollection = database.database.GetCollection<Position>("positions");
             RetrieveBadConnections();
             positionData = positionData.OrderByDescending(x => x.numOccurences).ToList();
