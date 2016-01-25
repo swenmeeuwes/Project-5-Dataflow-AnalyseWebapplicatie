@@ -29,16 +29,16 @@ namespace DataflowAnalyseWebApp.Controllers
             diskSpaceStatusItems = new List<DiskSpaceStatus>();
         }
 
-        [Route("api/unitdiskspace/alert/{threshold}")]
-        public IEnumerable<long> GetAlerts(long threshold)
-        {
-            List<MonitoringDiskSpace> monitoringList = Get().Distinct().ToList();
-            var query = from item in monitoringList.AsQueryable()
-                   where item.percentUsed >= threshold
-                   select item.unitId;
+        //[Route("api/unitdiskspace/alert/{threshold}")]
+        //public IEnumerable<long> GetAlerts(long threshold)
+        //{
+        //    List<MonitoringDiskSpace> monitoringList = Get().Distinct().ToList();
+        //    var query = from item in monitoringList.AsQueryable()
+        //           where item.percentUsed >= threshold
+        //           select item.unitId;
 
-            return query.Distinct();
-        }
+        //    return query.Distinct();
+        //}
 
         // GET api/UnitDiskSpace
         public IEnumerable<MonitoringDiskSpace> Get()
@@ -46,12 +46,14 @@ namespace DataflowAnalyseWebApp.Controllers
             GetDiskSpaceData();
             return monitoringItems;
         }
+        [Route("api/unitdiskspace/{unitId}")]
         // GET api/UnitDiskSpace/5
         public IEnumerable<MonitoringDiskSpace> Get(long unitId)
         {
             GetDiskSpaceById(unitId);
             return monitoringItems;
         }
+        [Route("api/unitdiskspace/{unitId}/{status}/status")]
         //Get api/UnitDiskSpace/id/status
         public IEnumerable<DiskSpaceStatus> Get(long unitId, string status)
         {
