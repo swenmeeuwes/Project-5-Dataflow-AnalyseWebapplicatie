@@ -11,15 +11,5 @@ namespace DataflowAnalyseWebApp.Models.MonitoringModels
         public DateTime endTime { get; set; }
         public double percentUsed { get; set; }
         public string diskSpaceStatus { get; set; }
-
-        public MonitoringDiskSpace() { }
-
-        public MonitoringDiskSpace(long unitId, DateTime endTime, double percentUsed, string diskSpaceStatus) {
-            this.unitId = unitId;
-            this.endTime = endTime;
-            this.percentUsed = percentUsed;
-            this.diskSpaceStatus = diskSpaceStatus;
-
-        }
     }
 }

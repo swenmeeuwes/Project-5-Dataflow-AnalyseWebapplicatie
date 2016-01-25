@@ -139,6 +139,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\DBController\" />
+    <Folder Include="Views\DiskSpaceStatus\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Models\ResponseModels\ApiResponse.cs" />
     <Compile Include="Models\DatabaseModels\Connection.cs" />
     <Compile Include="Models\DatabaseModels\Event.cs" />
+    <Compile Include="Models\ResponseModels\DiskSpaceStatus.cs" />
     <Compile Include="Models\ResponseModels\Ignition.cs" />
     <Compile Include="Models\ResponseModels\Maintenance.cs" />
     <Compile Include="Models\DatabaseModels\Monitoring.cs" />
